@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "Please cite this software and data release when using the package."
+title: "Z-Screen Program Package"
+type: dataset
+version: 1.2.0
+date-released: 2026-08-18
+authors:
+  - name: "Zafrens, Inc."
+    email: hello@zafrens.com
+    website: "https://zafrens.com"
+license: "CC-BY-4.0"
+abstract: >-
+  Per-compound 32-dimensional program-usage vectors and harmonized
+  6,000-gene response surfaces across eight combinatorial
+  library-cell-line contexts, the pinned shared program basis, an
+  evaluation-grade reference model, and imaging, therapeutic-hypothesis,
+  chemistry, and same-well annexes.

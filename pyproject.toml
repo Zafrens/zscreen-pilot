@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zscreen-program-package"
+version = "1.2.0"
+description = "Shared program layer of the Z-Screen screens: usages, harmonized surfaces, pinned basis, reference model, and annexes"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy>=2.0,<3",
+  "pandas>=2.2,<3",
+  "pyarrow>=18,<25",
+]
+
+[project.optional-dependencies]
+model = ["torch>=2.5,<3"]
+
+[project.scripts]
+zscreen-program-package = "zscreen_program_package.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

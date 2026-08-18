@@ -1,0 +1,9 @@
+# Reference environment used to build and verify release 1.2.0 on 2026-08-18.
+# The version ranges in pyproject.toml are the supported installation contract;
+# these exact versions provide a reproducible reference environment.
+python==3.14.3
+numpy==2.4.2
+pandas==2.3.3
+pyarrow==23.0.1
+# Optional 'model' extra (only for models/predict.py):
+# torch==2.5.1+cpu
