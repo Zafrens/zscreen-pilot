@@ -1,3 +1,13 @@
+---
+license: cc-by-4.0
+pretty_name: Z-Screen Pilot
+tags:
+  - biology
+  - chemistry
+  - transcriptomics
+  - drug-discovery
+---
+
 # Z-Screen Program Package
 
 Version 1.2.0, 2026-08-18. A standalone data and reference-model
@@ -16,9 +26,9 @@ release sits next to LINCS, JUMP-CP, Tahoe-100M, Recursion, and
 DNA-encoded libraries, is in `docs/WHY_THIS_MATTERS.md`. Start there
 or with `START_HERE.md`.
 
-This GitHub repository is code and documentation only. The measured
-arrays, imaging tables, and model checkpoints are on Hugging Face:
-https://huggingface.co/datasets/zafrens/zscreen-pilot
+Code and documentation: https://github.com/Zafrens/zscreen-pilot  
+Full package (arrays and checkpoints): https://huggingface.co/datasets/Zafrens/zscreen-pilot  
+DOI: https://doi.org/10.5281/zenodo.22003567
 
 ## Layout
 
@@ -112,6 +122,8 @@ tables, and public-ID formats. `--full` rehashes every file once
 
 ## Citation and license
 
-Cite per `CITATION.cff`. Software is Apache License 2.0. Data and
-model weights are CC BY 4.0. Chemical structures are not included.
-See `LICENSE.md`. Contact: hello@zafrens.com.
+Cite per `CITATION.cff` (DOI [10.5281/zenodo.22003567](https://doi.org/10.5281/zenodo.22003567);
+data at https://huggingface.co/datasets/Zafrens/zscreen-pilot).
+Software is Apache License 2.0. Data and model weights are CC BY 4.0.
+Chemical structures are not included. See `LICENSE.md`.
+Contact: hello@zafrens.com.

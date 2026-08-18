@@ -195,4 +195,5 @@ See `annex_chemistry/README.md`.
   (`python verify.py`).
 
 License: software Apache-2.0; data and weights CC BY 4.0. See
-`LICENSE.md`. Contact: hello@zafrens.com.
+`LICENSE.md`. Cite DOI 10.5281/zenodo.22003567. Contact:
+hello@zafrens.com.

@@ -9,6 +9,15 @@ authors:
     email: hello@zafrens.com
     website: "https://zafrens.com"
 license: "CC-BY-4.0"
+url: "https://doi.org/10.5281/zenodo.22003567"
+repository-code: "https://github.com/Zafrens/zscreen-pilot"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.22003567
+    description: Zenodo version DOI for v1.2.0 (code and documentation)
+  - type: url
+    value: "https://huggingface.co/datasets/Zafrens/zscreen-pilot"
+    description: Full package (arrays and model weights)
 abstract: >-
   Per-compound 32-dimensional program-usage vectors and harmonized
   6,000-gene response surfaces across eight combinatorial
