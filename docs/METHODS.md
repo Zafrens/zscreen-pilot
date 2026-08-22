@@ -94,6 +94,23 @@ per context, shipped as `core/usages/usages_{context}.npy`. Column *j* is
 program P*j*+1 of the pinned basis in every context and every derived
 table in the package.
 
+## 8a. Control contexts (annex_controls/)
+
+The 35 control compounds were profiled in a separate controls-only
+library run across five cell lines (`annex_controls/`). Their surfaces
+follow steps 1–4 as written — wells pooled per control × device
+pseudobulk, log1p-CP10k, per-device mean centering (the run contained
+only controls, so each device's centering mean is its control-population
+mean), then a capped square-root well-count weighted mean per control
+(cap 20 wells) — and are restricted to the harmonized 6,000-gene panel.
+No depth layer (step 5) is applied, matching the correction-free shared
+program layer. Control usages are the step-8 projection of those
+surfaces onto the same pinned basis; the per-context scale factors of
+the core contexts have no control-run counterpart. The replicate layer
+(per-control × device pseudobulk counts with full-width UMI totals)
+ships alongside so normalization and centering choices can be rebuilt
+or varied downstream.
+
 ## 9. Reference model
 
 The shipped reference model (`context_token_trunk_reference_eval_v1`,

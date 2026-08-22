@@ -10,14 +10,16 @@ tags:
 
 # Z-Screen Program Package
 
-Version 1.2.0, 2026-08-18. A standalone data and reference-model
+Version 1.3.0, 2026-08-21. A standalone data and reference-model
 package centered on the shared program layer of the Z-Screen
 combinatorial chemistry screens: per-compound 32-dimensional
 program-usage vectors and harmonized 6,000-gene response surfaces
 across 8 library × cell-line contexts, the pinned shared program
 basis they are defined against, an evaluation-grade reference model,
-and four annexes (imaging, therapeutic hypotheses, chemistry,
-same-well).
+and five annexes (imaging, therapeutic hypotheses, chemistry,
+same-well, controls). New in 1.3.0: `annex_controls/` — measured
+mRNA profiles of the 35 control compounds (256,052 wells across five
+cell-line contexts), the most replicated data in the pilot.
 
 The screens are a pilot relative to the chemical space the same
 libraries can generate. The objects that scale are the building-block
@@ -28,7 +30,7 @@ or with `START_HERE.md`.
 
 Code and documentation: https://github.com/Zafrens/zscreen-pilot  
 Full package (arrays and checkpoints): https://huggingface.co/datasets/Zafrens/zscreen-pilot  
-DOI: https://doi.org/10.5281/zenodo.22003567
+DOI: https://doi.org/10.5281/zenodo.22003566 (concept DOI; resolves to the latest version)
 
 ## Layout
 
@@ -62,6 +64,9 @@ annex_chemistry/            novel_bb_generalization.csv, attribution_certificate
                             activity_cliffs.csv, chemotype_series.csv, bb_effect_rankings.csv
 annex_same_well/            same-well control study: 11,435 wells x 35 controls with paired
                             448-d image + 32-d RNA latents per well, evidence tables, README
+annex_controls/             measured mRNA profiles of the 35 control compounds: 6,000-gene
+                            surfaces, 32-d usages, and per-batch pseudobulk replicates
+                            (256,052 wells, 5 cell-line contexts), README
 docs/                       WHY_THIS_MATTERS, SCIENTIFIC_OVERVIEW, METHODS, DATA_DICTIONARY,
                             INTERPRETATION_LIMITS, REPRODUCTION, terminology.json
 src/zscreen_program_package/  thin loader + verification library (no model training code)
@@ -122,7 +127,8 @@ tables, and public-ID formats. `--full` rehashes every file once
 
 ## Citation and license
 
-Cite per `CITATION.cff` (DOI [10.5281/zenodo.22003567](https://doi.org/10.5281/zenodo.22003567);
+Cite per `CITATION.cff` (concept DOI [10.5281/zenodo.22003566](https://doi.org/10.5281/zenodo.22003566),
+which resolves to the latest version;
 data at https://huggingface.co/datasets/Zafrens/zscreen-pilot).
 Software is Apache License 2.0. Data and model weights are CC BY 4.0.
 Chemical structures are not included. See `LICENSE.md`.

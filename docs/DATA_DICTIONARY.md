@@ -6,6 +6,10 @@ contracts that make the layers join. Contexts (8): `zel024_hek293`,
 `zel031_a549`, `zel031_thp1`, `zel039_aec7`. Compound counts per context:
 13,914 / 10,686 / 61,396 / 40,622 / 25,906 / 8,321 / 9,041 / 20,813
 (190,699 compound-context pairs; 162,914 distinct compounds).
+Control contexts (5, `annex_controls/`): `zic008_a549`, `zic008_aec7`,
+`zic008_h1650`, `zic008_hek293`, `zic008_hek293clone` — 35 control
+compounds each, from the controls-only library run (no control wells
+exist in the 8 core contexts).
 
 ## Contracts (read first)
 
@@ -400,5 +404,50 @@ label: `same_well_hek293`.
 - `evidence/learning_curve.csv` (6 rows) — `n_wells`, `mcPearson_mean`,
   `mcPearson_std`, `null_mean`, `null_std`, `null_p025`, `null_p975`.
 - `evidence/learning_curve.png` — the learning curve, plotted.
+
+## annex_controls/
+
+Full narrative: `annex_controls/README.md`. Measured mRNA profiles of
+the 35 control compounds from the controls-only library run (contexts:
+`zic008_a549`, `zic008_aec7`, `zic008_h1650`, `zic008_hek293`,
+`zic008_hek293clone`). The row-alignment contract applies: every
+`.npy` matrix is row-aligned to its sibling parquet, positionally.
+All layers are measured (same pipeline recipe as `core/`, applied to
+the controls-only run; per-batch centering uses the control
+population of that run — see the annex README).
+
+- `control_compound_map.csv` (35 rows) — `control_name`,
+  `public_compound_id`, `public_compound_name`. Same mapping as in
+  `annex_same_well/`.
+- `control_surfaces_{context}.npy` — float32, (35, 6000).
+  Device-centered log1p-CP10k per-control surfaces on the harmonized
+  panel; column *j* is panel position *j* of
+  `core/surfaces/harmonized_6000_genes.parquet`.
+- `control_surfaces_{context}_compounds.parquet` — 35 rows, aligned to
+  the surface matrix rows: `public_compound_id` (string),
+  `control_name` (string), `n_wells` (int64), `n_devices` (int64,
+  batches), `total_umis` (float64).
+- `control_usages_k32.parquet` — 175 rows (35 controls × 5 contexts):
+  `control_context` (string), `public_compound_id` (string),
+  `control_name` (string), `n_wells` (int64), `u_P01`…`u_P32`
+  (float64). The free-sign least-squares projection of each control
+  surface onto the pinned k = 32 basis — the same operator as
+  `core/usages/`; column `u_P0j` is program P*j* of the pinned basis.
+  Control contexts have no per-context scale factor (those are defined
+  only for the 8 core contexts); compare against core usages by
+  correlation, not absolute coordinate.
+- `control_pseudobulk_counts_{context}.npy` — float32,
+  (n_pseudobulks, 6000): summed UMI counts per control × batch
+  pseudobulk, panel columns only. Raw counts, not normalized.
+  Pseudobulks per context: 350 / 560 / 140 / 139 / 70
+  (`zic008_a549` / `zic008_aec7` / `zic008_h1650` / `zic008_hek293` /
+  `zic008_hek293clone`).
+- `control_pseudobulks_{context}.parquet` — one row per pseudobulk,
+  aligned to the counts matrix rows: `public_compound_id` (string),
+  `control_name` (string), `batch_id` (string, anonymized per context
+  as `batch_01`, `batch_02`, …; not comparable across contexts),
+  `n_wells` (int64), `total_umis` (float64, summed over all 46,944
+  genes — log1p-CP10k on the panel columns is exactly reproducible as
+  `log1p(counts / total_umis * 1e4)`).
 
 

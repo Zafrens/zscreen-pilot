@@ -28,6 +28,14 @@ CONTEXTS = (
     "zel039_aec7",
 )
 
+CONTROL_CONTEXTS = (
+    "zic008_a549",
+    "zic008_aec7",
+    "zic008_h1650",
+    "zic008_hek293",
+    "zic008_hek293clone",
+)
+
 _ROOT_MARKERS = ("core/basis/basis_registry.json", "core/recipes.parquet")
 
 
@@ -118,3 +126,55 @@ def panel_genes(root: str | Path | None = None) -> pd.DataFrame:
     panel columns to gene symbols."""
     root = _resolve(root)
     return pd.read_parquet(root / "core" / "surfaces" / "harmonized_6000_genes.parquet")
+
+
+def _check_control_context(context: str) -> str:
+    if context not in CONTROL_CONTEXTS:
+        raise ValueError(
+            f"unknown control context {context!r}; expected one of "
+            f"{', '.join(CONTROL_CONTEXTS)}")
+    return context
+
+
+def load_control_surface(context: str, root: str | Path | None = None):
+    """Return (surface, controls) for a control context: surface is
+    float32 (35, 6000) on the harmonized panel, controls is the aligned
+    frame (public_compound_id, control_name, n_wells, n_devices,
+    total_umis). Row i of the matrix is row i of the frame."""
+    root = _resolve(root)
+    _check_control_context(context)
+    surface = np.load(root / "annex_controls" / f"control_surfaces_{context}.npy")
+    controls = pd.read_parquet(
+        root / "annex_controls" / f"control_surfaces_{context}_compounds.parquet")
+    if surface.shape[0] != len(controls):
+        raise ValueError(
+            f"row-alignment broken for {context}: {surface.shape[0]} surface rows "
+            f"vs {len(controls)} control rows")
+    return surface, controls
+
+
+def load_control_pseudobulks(context: str, root: str | Path | None = None):
+    """Return (counts, pseudobulks) for a control context: counts is
+    float32 (n_pseudobulks, 6000) summed UMI counts (raw, not
+    normalized) on the harmonized panel, pseudobulks is the aligned
+    frame (public_compound_id, control_name, batch_id, n_wells,
+    total_umis). Normalize as log1p(counts / total_umis * 1e4)."""
+    root = _resolve(root)
+    _check_control_context(context)
+    counts = np.load(
+        root / "annex_controls" / f"control_pseudobulk_counts_{context}.npy")
+    pseudobulks = pd.read_parquet(
+        root / "annex_controls" / f"control_pseudobulks_{context}.parquet")
+    if counts.shape[0] != len(pseudobulks):
+        raise ValueError(
+            f"row-alignment broken for {context}: {counts.shape[0]} count rows "
+            f"vs {len(pseudobulks)} pseudobulk rows")
+    return counts, pseudobulks
+
+
+def load_control_usages(root: str | Path | None = None) -> pd.DataFrame:
+    """Return the per-control 32-program usage table (175 rows:
+    control_context, public_compound_id, control_name, n_wells,
+    u_P01..u_P32). Column u_P0j is program Pj of the pinned basis."""
+    root = _resolve(root)
+    return pd.read_parquet(root / "annex_controls" / "control_usages_k32.parquet")

@@ -145,6 +145,17 @@ means are removed; all 35 controls show significant coupling
 A design paired only at compound grain (35 points) sits below the
 null band. See `annex_same_well/README.md`.
 
+### Control mRNA profiles
+
+`annex_controls/` holds the measured mRNA response profiles of the 35
+control compounds — the most replicated measurements in the pilot
+(256,052 wells across five cell-line contexts: `zic008_a549`,
+`zic008_aec7`, `zic008_h1650`, `zic008_hek293`, `zic008_hek293clone`).
+Each control ships as a 6,000-gene harmonized surface, a 32-program
+usage vector against the pinned basis, and a per-batch pseudobulk
+replicate layer. Use it for positive-control anchoring and
+reliability estimation. See `annex_controls/README.md`.
+
 ### Therapeutic hypotheses
 
 `annex_hypotheses/` is the hypothesis layer: prioritized, tiered
@@ -195,5 +206,5 @@ See `annex_chemistry/README.md`.
   (`python verify.py`).
 
 License: software Apache-2.0; data and weights CC BY 4.0. See
-`LICENSE.md`. Cite DOI 10.5281/zenodo.22003567. Contact:
-hello@zafrens.com.
+`LICENSE.md`. Cite DOI 10.5281/zenodo.22003566 (concept DOI, latest
+version). Contact: hello@zafrens.com.
