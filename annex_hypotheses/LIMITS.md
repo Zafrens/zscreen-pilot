@@ -5,7 +5,7 @@ can be taken into an experiment. Each row states the evidence that
 put it on the list, the null against which that evidence was judged,
 and — for the distilled leads — a measurement that would kill or
 confirm the claim. The distilled entry point is `anchor_leads.csv`;
-the 3,754-row ledger is the complete mining output and is
+the 1,027-row ledger is the complete mining output and is
 correspondingly coarser.
 
 ## The unit of claim is the building block, not the compound
@@ -50,19 +50,18 @@ flag marks every row where this applies.
 - Depth-tier skew can masquerade as signal at series level; check
   tier composition columns before trusting any single series.
 
-## External-atlas concordance
+## External concordance
 
-Cross-atlas resemblance at this signature resolution is a ranking
-aid: LINCS self-recovery is 8/24 (33%), and pre-registered mechanism
-recovery against the Replogle KO atlas is 2/48 (4%). Those rates
-calibrate the 2,727 external-atlas rows, which sit in tier C. Two
-mechanism-level recoveries are exact enough to name individually:
-the METTL3-inhibitor → METTL3-knockout phenocopy (the strongest
-control result in the dataset) and the HSF1-chemotype →
-HIKESHI-knockout resemblance (correct pathway, consistent with the
-chemistry, not a validation). Same-MOA controls do not cluster with
-each other in any cell line, which bounds what an MOA-level claim
-can mean here.
+Compound ↔ CRISPR-knockout concordance lives in
+`annex_phenomimicry/`: 43 knockout signature sets from 10
+perturb-seq datasets, calibrated against a random-target empirical
+null. Recovery of known pharmacology is real but modest on average
+and concentrated in 25 control → target pairs at the null floor,
+named individually in that annex. The dominant background is a
+generic RNA/stress hub axis; check `hub_flag` before treating any
+hit as specific. Same-MOA controls do not cluster with each other
+in any cell line, which bounds what an MOA-level claim can mean
+here.
 
 ## What this annex does not contain
 

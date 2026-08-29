@@ -85,7 +85,7 @@ own profile; 49 of the 50 nearest neighbors carry the block). An
 ER-stress sub-series is coherent at 0.79 while its 50 nearest chemical
 neighbors anti-correlate (−0.33). The hypothesis annex includes sixteen
 distilled leads, each with a specified kill/confirm experiment; the
-mining ledger behind them has 3,754 rows and is labeled as triage
+mining ledger behind them has 1,027 rows and is labeled as triage
 material.
 
 ## Imaging in the same coordinates

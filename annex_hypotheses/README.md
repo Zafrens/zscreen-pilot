@@ -57,7 +57,7 @@ UPR reporter on members and non-members.
 | `anchor_leads.csv` | 16 | The distilled, hand-curated leads — the guided entry point. Each row states the building-block level(s), context, biological program, matched control (if any), external triangulation, the evidence with its null named, a confidence tier, caveats, and a concrete **kill/confirm experiment**. |
 | `program_atlas.csv` | 26 | The 26 program groups that organize the screens: theme and named gene-set family per group, top genes, driving BB levels, anchor controls, CRISPR-knockout links, depth-tier diagnostics, confidence tier, and a focus experiment. Program identities are tied to the pinned shared basis (see `core/basis/basis_registry.json`). |
 | `sharp_sar_candidates.csv` | 133 | Biology-ranked shortlist of sharp structure-activity objects: two-position BB sub-series, resolution-stable micro-clusters, and single-level R-groups, ranked by within-phenotype coherence against tier-matched nulls plus chemistry-ring falloff (do the chemically nearest non-members lose the phenotype?). zel024 rows are marked `grammar_level` (bb-backbone discovery only). The full SAR tables, organized for chemists, are in the chemistry annex — this file is the cross-reference shortlist, not a duplicate. |
-| `hypothesis_ledger_full.csv` | 3,754 | The complete, unfiltered mining ledger. **Triage-grade, hypothesis-generating** — the filename, the `status` column (`hypothesis_anchor_validated` / `hypothesis_strong` / `hypothesis_triage`), and `confidence_tier` make that unambiguous. It is included for completeness and for collaborators who want to re-rank with their own priors. |
+| `hypothesis_ledger_full.csv` | 1,027 | The complete, unfiltered mining ledger. **Triage-grade, hypothesis-generating** — the filename, the `status` column (`hypothesis_anchor_validated` / `hypothesis_strong` / `hypothesis_triage`), and `confidence_tier` make that unambiguous. It is included for completeness and for collaborators who want to re-rank with their own priors. |
 
 ## How the tiers work
 
@@ -70,10 +70,10 @@ UPR reporter on members and non-members.
 - **B — strong pooled signal, nulls addressed, but limited
   independence or single-context support.** Level→control rank-1
   matches and the recurring grammar programs live here.
-- **C — triage.** Everything else, including all 2,727
-  external-atlas resemblance rows (see LIMITS) and recorded nulls,
-  which are kept because a well-characterized null is as useful as
-  a positive.
+- **C — triage.** Everything else, plus the recorded nulls, which
+  are kept because a well-characterized null is as useful as a
+  positive. External CRISPR-knockout concordance is a separate annex
+  (`../annex_phenomimicry/`) with its own calibrated tiers.
 
 Caveat flags use a controlled vocabulary: `weak_null` (match
 p-value is permissive — specificity is in the rank/identity),

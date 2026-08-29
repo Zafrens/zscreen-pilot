@@ -6,10 +6,6 @@ contracts that make the layers join. Contexts (8): `zel024_hek293`,
 `zel031_a549`, `zel031_thp1`, `zel039_aec7`. Compound counts per context:
 13,914 / 10,686 / 61,396 / 40,622 / 25,906 / 8,321 / 9,041 / 20,813
 (190,699 compound-context pairs; 162,914 distinct compounds).
-Control contexts (5, `annex_controls/`): `zic008_a549`, `zic008_aec7`,
-`zic008_h1650`, `zic008_hek293`, `zic008_hek293clone` — 35 control
-compounds each, from the controls-only library run (no control wells
-exist in the 8 core contexts).
 
 ## Contracts (read first)
 
@@ -40,7 +36,7 @@ on the full 64-hex-character digest as an integer. The shared basis and
 the reference model were both fit with fold 0 held out. Train on folds
 1–4, evaluate on fold 0. Note: promoted usages can be slightly more
 predictable on fold 0 in some exercises, so clean cross-exercise
-comparisons use folds 1–4 (see `docs/INTERPRETATION_LIMITS.md`).
+comparisons use folds 1–4.
 
 **Measured vs predicted.** Everything under `core/` is measured
 (derived from measurement by the pipeline in `docs/METHODS.md`).
@@ -318,12 +314,42 @@ hypothesis-generating.
   `falloff_null_percentile`, `chemistry_within`, `ring1_similarity`,
   `driver_genes`, `evidence_tier` (zel024 rows marked `grammar_level`),
   `selection_note`.
-- `hypothesis_ledger_full.csv` (3,754 rows, triage-grade,
+- `hypothesis_ledger_full.csv` (1,027 rows, triage-grade,
   hypothesis-generating) — `hypothesis_id`, `hypothesis_type`, `status`
   (`hypothesis_anchor_validated` / `hypothesis_strong` /
   `hypothesis_triage`), `confidence_tier`, `context`, `bb_level_ids`,
   `claim`, `evidence`, `matched_control`, `moa_class`, `caveats`,
   `evidence_rank_score`.
+
+## annex_phenomimicry/
+
+Read `annex_phenomimicry/README.md` first. All tables are
+hypothesis-grade compound × CRISPR-knockout concordance, calibrated
+against a random-target empirical null.
+
+- `phenomimic_pairs.parquet` (426,461 rows) — `public_compound_id`,
+  `target_gene`, `n_contexts`, `contexts`, `best_z`, `mean_z`,
+  `best_rank`, `mean_rank`, `is_named_control`, `kd_delta_median`,
+  `kd_flag_weak`, `tier` (`B_consensus_strong` / `B_single_context` /
+  `C_moderate`), `bb0`–`bb4`, `hub_flag`.
+- `antimimic_pairs.parquet` (561,355 rows) — the reversal track
+  (z ≤ −5), same column convention minus the recipe columns.
+- `showcase_hits.csv` (2,000 rows) — per-dataset evidence columns
+  (`n_datasets_scored`, `n_datasets_top5pct`, `n_datasets_top1pct`,
+  `best_percentile`, `max_cosine`, `median_percentile`,
+  `best_dataset_exact`) plus consensus columns and control annotations
+  (`name`, `moa_class`, `primary_target`).
+- `top100_phenomimics.csv` (100 rows) — `rank`, `family_id`,
+  `target_gene`, `family_size`, `family_max_z`, `family_evidence`,
+  `public_compound_id`, `best_z`, `tier`, `contexts`, `kd_flag_weak`,
+  `is_family_representative`.
+- `top100_family_summary.csv` (31 rows) — `family_id`, `target_gene`,
+  `family_size`, `family_max_z`, `family_evidence`, `n_in_top100`.
+- `validation_empirical_p.csv` (1,546 rows) — `context`, `dataset`,
+  `public_compound_id`, `target_gene`, `cosine`, `rank_mimic`,
+  `n_targets`, `n_shared_genes`, `percentile`, `control_name`, `p_emp`.
+- `target_hubness.csv` (18,789 rows) — `target_gene`,
+  `n_compounds_hit`, `hub_frac`, `hub_flag`.
 
 ## annex_chemistry/
 
@@ -404,50 +430,5 @@ label: `same_well_hek293`.
 - `evidence/learning_curve.csv` (6 rows) — `n_wells`, `mcPearson_mean`,
   `mcPearson_std`, `null_mean`, `null_std`, `null_p025`, `null_p975`.
 - `evidence/learning_curve.png` — the learning curve, plotted.
-
-## annex_controls/
-
-Full narrative: `annex_controls/README.md`. Measured mRNA profiles of
-the 35 control compounds from the controls-only library run (contexts:
-`zic008_a549`, `zic008_aec7`, `zic008_h1650`, `zic008_hek293`,
-`zic008_hek293clone`). The row-alignment contract applies: every
-`.npy` matrix is row-aligned to its sibling parquet, positionally.
-All layers are measured (same pipeline recipe as `core/`, applied to
-the controls-only run; per-batch centering uses the control
-population of that run — see the annex README).
-
-- `control_compound_map.csv` (35 rows) — `control_name`,
-  `public_compound_id`, `public_compound_name`. Same mapping as in
-  `annex_same_well/`.
-- `control_surfaces_{context}.npy` — float32, (35, 6000).
-  Device-centered log1p-CP10k per-control surfaces on the harmonized
-  panel; column *j* is panel position *j* of
-  `core/surfaces/harmonized_6000_genes.parquet`.
-- `control_surfaces_{context}_compounds.parquet` — 35 rows, aligned to
-  the surface matrix rows: `public_compound_id` (string),
-  `control_name` (string), `n_wells` (int64), `n_devices` (int64,
-  batches), `total_umis` (float64).
-- `control_usages_k32.parquet` — 175 rows (35 controls × 5 contexts):
-  `control_context` (string), `public_compound_id` (string),
-  `control_name` (string), `n_wells` (int64), `u_P01`…`u_P32`
-  (float64). The free-sign least-squares projection of each control
-  surface onto the pinned k = 32 basis — the same operator as
-  `core/usages/`; column `u_P0j` is program P*j* of the pinned basis.
-  Control contexts have no per-context scale factor (those are defined
-  only for the 8 core contexts); compare against core usages by
-  correlation, not absolute coordinate.
-- `control_pseudobulk_counts_{context}.npy` — float32,
-  (n_pseudobulks, 6000): summed UMI counts per control × batch
-  pseudobulk, panel columns only. Raw counts, not normalized.
-  Pseudobulks per context: 350 / 560 / 140 / 139 / 70
-  (`zic008_a549` / `zic008_aec7` / `zic008_h1650` / `zic008_hek293` /
-  `zic008_hek293clone`).
-- `control_pseudobulks_{context}.parquet` — one row per pseudobulk,
-  aligned to the counts matrix rows: `public_compound_id` (string),
-  `control_name` (string), `batch_id` (string, anonymized per context
-  as `batch_01`, `batch_02`, …; not comparable across contexts),
-  `n_wells` (int64), `total_umis` (float64, summed over all 46,944
-  genes — log1p-CP10k on the panel columns is exactly reproducible as
-  `log1p(counts / total_umis * 1e4)`).
 
 

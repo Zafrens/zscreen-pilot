@@ -20,7 +20,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .data import CONTEXTS, CONTROL_CONTEXTS
+from .data import CONTEXTS
 
 COMPOUND_COUNTS = {
     "zel024_hek293": 13914,
@@ -32,16 +32,6 @@ COMPOUND_COUNTS = {
     "zel031_thp1": 9041,
     "zel039_aec7": 20813,
 }
-
-CONTROL_PSEUDOBULK_COUNTS = {
-    "zic008_a549": 350,
-    "zic008_aec7": 560,
-    "zic008_h1650": 140,
-    "zic008_hek293": 139,
-    "zic008_hek293clone": 70,
-}
-
-N_CONTROLS = 35
 
 MANIFEST_PATH = Path("provenance") / "file_manifest.csv"
 
@@ -120,9 +110,17 @@ ANNEX_FILES = (
     "annex_same_well/evidence/per_control_coupling.csv",
     "annex_same_well/evidence/learning_curve.csv",
     "annex_same_well/evidence/learning_curve.png",
-    "annex_controls/README.md",
-    "annex_controls/control_compound_map.csv",
-    "annex_controls/control_usages_k32.parquet",
+)
+
+PHENOMIMICRY_FILES = (
+    "annex_phenomimicry/README.md",
+    "annex_phenomimicry/phenomimic_pairs.parquet",
+    "annex_phenomimicry/antimimic_pairs.parquet",
+    "annex_phenomimicry/showcase_hits.csv",
+    "annex_phenomimicry/top100_phenomimics.csv",
+    "annex_phenomimicry/top100_family_summary.csv",
+    "annex_phenomimicry/validation_empirical_p.csv",
+    "annex_phenomimicry/target_hubness.csv",
 )
 
 DOC_FILES = (
@@ -130,7 +128,6 @@ DOC_FILES = (
     "docs/SCIENTIFIC_OVERVIEW.md",
     "docs/METHODS.md",
     "docs/DATA_DICTIONARY.md",
-    "docs/INTERPRETATION_LIMITS.md",
     "docs/REPRODUCTION.md",
     "docs/terminology.json",
 )
@@ -160,20 +157,14 @@ def _sha256(path: Path) -> str:
 
 def _required_files(root: Path) -> list[CheckResult]:
     expected = list(ROOT_FILES) + list(CORE_STATIC_FILES) + list(MODEL_FILES)
-    expected += list(ANNEX_FILES) + list(DOC_FILES) + list(EXAMPLE_FILES)
+    expected += list(ANNEX_FILES) + list(PHENOMIMICRY_FILES)
+    expected += list(DOC_FILES) + list(EXAMPLE_FILES)
     for context in CONTEXTS:
         expected += [
             f"core/usages/usages_{context}.npy",
             f"core/usages/usages_{context}_compounds.parquet",
             f"core/surfaces/surfaces_{context}.npy",
             f"core/surfaces/{context}_compounds.parquet",
-        ]
-    for context in CONTROL_CONTEXTS:
-        expected += [
-            f"annex_controls/control_surfaces_{context}.npy",
-            f"annex_controls/control_surfaces_{context}_compounds.parquet",
-            f"annex_controls/control_pseudobulk_counts_{context}.npy",
-            f"annex_controls/control_pseudobulks_{context}.parquet",
         ]
     results, missing = [], [p for p in expected if not (root / p).is_file()]
     if missing:
@@ -265,9 +256,9 @@ def _schema_checks(root: Path) -> list[CheckResult]:
           and panel["panel_position"].tolist() == list(range(6000)))
     record(ok, "schema:panel", f"{len(panel)} rows, positions 0..5999")
 
-    # Hypothesis ledger: exactly 3,754 rows; anchor leads carry kill/confirm.
+    # Hypothesis ledger: exactly 1,027 rows; anchor leads carry kill/confirm.
     ledger = pd.read_csv(root / "annex_hypotheses" / "hypothesis_ledger_full.csv")
-    record(len(ledger) == 3754, "schema:ledger", f"{len(ledger)} rows (expect 3,754)")
+    record(len(ledger) == 1027, "schema:ledger", f"{len(ledger)} rows (expect 1,027)")
     leads = pd.read_csv(root / "annex_hypotheses" / "anchor_leads.csv")
     ok = ("kill_confirm_experiment" in leads.columns
           and leads["kill_confirm_experiment"].notna().all())
@@ -288,40 +279,6 @@ def _schema_checks(root: Path) -> list[CheckResult]:
     bb_sample = pd.Series(bb_values).sample(n=min(2000, len(bb_values)), random_state=0)
     ok = bb_sample.str.match(BB_RE).all()
     record(ok, "schema:bb-ids", f"{len(bb_sample)} sampled IDs match BB_##########")
-
-    # Controls annex: per-context row alignment, shapes, and support counts.
-    control_map = pd.read_csv(root / "annex_controls" / "control_compound_map.csv")
-    map_ok = (len(control_map) == N_CONTROLS
-              and control_map["public_compound_id"].astype(str).str.match(CPD_RE).all())
-    record(map_ok, "schema:control-map", f"{len(control_map)} controls, CPD ID format")
-    control_ids = set(control_map["public_compound_id"])
-    for context in CONTROL_CONTEXTS:
-        surface = np.load(root / "annex_controls" / f"control_surfaces_{context}.npy")
-        s_keys = pd.read_parquet(
-            root / "annex_controls" / f"control_surfaces_{context}_compounds.parquet")
-        counts = np.load(
-            root / "annex_controls" / f"control_pseudobulk_counts_{context}.npy")
-        pb = pd.read_parquet(
-            root / "annex_controls" / f"control_pseudobulks_{context}.parquet")
-        expected_pb = CONTROL_PSEUDOBULK_COUNTS[context]
-        ok = (surface.shape == (N_CONTROLS, 6000)
-              and counts.shape == (expected_pb, 6000)
-              and len(s_keys) == N_CONTROLS and len(pb) == expected_pb
-              and set(s_keys["public_compound_id"]) == control_ids
-              and set(pb["public_compound_id"]) <= control_ids
-              and int(pb["n_wells"].sum()) == int(s_keys["n_wells"].sum()))
-        record(ok, f"schema:controls:{context}",
-               f"surfaces {surface.shape}, pseudobulks {counts.shape}, "
-               f"{int(pb['n_wells'].sum())} wells")
-    usages = pd.read_parquet(root / "annex_controls" / "control_usages_k32.parquet")
-    u_cols = [f"u_P{j + 1:02d}" for j in range(32)]
-    ok = (len(usages) == N_CONTROLS * len(CONTROL_CONTEXTS)
-          and all(c in usages.columns for c in u_cols)
-          and set(usages["control_context"]) == set(CONTROL_CONTEXTS)
-          and usages["public_compound_id"].astype(str).str.match(CPD_RE).all()
-          and np.isfinite(usages[u_cols].to_numpy(dtype=np.float64)).all())
-    record(ok, "schema:control-usages",
-           f"{len(usages)} rows x 32 usage columns, finite")
 
     return results
 

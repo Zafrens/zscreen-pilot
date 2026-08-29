@@ -145,17 +145,6 @@ means are removed; all 35 controls show significant coupling
 A design paired only at compound grain (35 points) sits below the
 null band. See `annex_same_well/README.md`.
 
-### Control mRNA profiles
-
-`annex_controls/` holds the measured mRNA response profiles of the 35
-control compounds — the most replicated measurements in the pilot
-(256,052 wells across five cell-line contexts: `zic008_a549`,
-`zic008_aec7`, `zic008_h1650`, `zic008_hek293`, `zic008_hek293clone`).
-Each control ships as a 6,000-gene harmonized surface, a 32-program
-usage vector against the pinned basis, and a per-batch pseudobulk
-replicate layer. Use it for positive-control anchoring and
-reliability estimation. See `annex_controls/README.md`.
-
 ### Therapeutic hypotheses
 
 `annex_hypotheses/` is the hypothesis layer: prioritized, tiered
@@ -165,9 +154,11 @@ model and a concrete kill/confirm experiment. `anchor_leads.csv`
 that reproduces the measured phenotype of the control HTH-01-015 at
 rank 1. Confidence tiers run A (anchor-validated, multiple
 independent evidence lines) through B (strong pooled signal) to C
-(triage). The complete 3,754-row mining ledger is
+(triage). The complete 1,027-row mining ledger is
 `hypothesis_ledger_full.csv`, labeled triage-grade on its face.
 Read `annex_hypotheses/README.md` and `LIMITS.md` with the tables.
+Compound ↔ CRISPR-knockout concordance, calibrated against an
+empirical null, ships separately in `annex_phenomimicry/`.
 
 ### Chemistry annex and the NDA path
 
@@ -200,11 +191,10 @@ See `annex_chemistry/README.md`.
 - `docs/SCIENTIFIC_OVERVIEW.md` — the science and the design choices.
 - `docs/METHODS.md` — the pipeline, step by step.
 - `docs/DATA_DICTIONARY.md` — every file, column, array key, and contract.
-- `docs/INTERPRETATION_LIMITS.md` — how to read each layer.
 - `docs/REPRODUCTION.md` — worked reproduction recipes.
 - `verify.py` — one-command integrity and schema check
   (`python verify.py`).
 
 License: software Apache-2.0; data and weights CC BY 4.0. See
-`LICENSE.md`. Cite DOI 10.5281/zenodo.22003566 (concept DOI, latest
-version). Contact: hello@zafrens.com.
+`LICENSE.md`. Cite DOI 10.5281/zenodo.22003567. Contact:
+hello@zafrens.com.

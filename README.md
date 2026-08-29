@@ -10,16 +10,26 @@ tags:
 
 # Z-Screen Program Package
 
-Version 1.3.0, 2026-08-21. A standalone data and reference-model
+Version 1.4.0, 2026-08-29. A standalone data and reference-model
 package centered on the shared program layer of the Z-Screen
 combinatorial chemistry screens: per-compound 32-dimensional
 program-usage vectors and harmonized 6,000-gene response surfaces
 across 8 library × cell-line contexts, the pinned shared program
 basis they are defined against, an evaluation-grade reference model,
 and five annexes (imaging, therapeutic hypotheses, chemistry,
-same-well, controls). New in 1.3.0: `annex_controls/` — measured
-mRNA profiles of the 35 control compounds (256,052 wells across five
-cell-line contexts), the most replicated data in the pilot.
+same-well, phenomimicry).
+
+> **New in v1.4 (2026-08-29).** The CRISPR-knockout comparison has
+> been expanded into a full annex, **`annex_phenomimicry/`**: every
+> compound signature is now scored against 43 knockout signature sets
+> from 10 public perturb-seq datasets (~18.8k target genes, ~8M
+> perturbed cells), calibrated against a random-target empirical null
+> (25 known drug → target recoveries at the null floor, named in the
+> annex), with a per-target hub guardrail and a ranked top-100
+> SAR-family table. This replaces the previous single-atlas triage
+> track, and the hypothesis ledger is correspondingly slimmer
+> (1,027 rows). **If you downloaded an earlier version, re-fetch
+> `annex_phenomimicry/`, `annex_hypotheses/`, and `docs/`.**
 
 The screens are a pilot relative to the chemical space the same
 libraries can generate. The objects that scale are the building-block
@@ -30,7 +40,7 @@ or with `START_HERE.md`.
 
 Code and documentation: https://github.com/Zafrens/zscreen-pilot  
 Full package (arrays and checkpoints): https://huggingface.co/datasets/Zafrens/zscreen-pilot  
-DOI: https://doi.org/10.5281/zenodo.22003566 (concept DOI; resolves to the latest version)
+DOI: https://doi.org/10.5281/zenodo.22003566
 
 ## Layout
 
@@ -59,16 +69,15 @@ models/                     reference model (evaluation grade): 3 checkpoints, m
 annex_imaging/              per-compound image embeddings, marker intensities, zel039 latents,
                             reliability audits, fold-clean prediction dumps, decomposition
 annex_hypotheses/           anchor_leads.csv, program_atlas.csv, sharp_sar_candidates.csv,
-                            hypothesis_ledger_full.csv (3,754 rows, triage-grade), LIMITS.md
+                            hypothesis_ledger_full.csv (1,027 rows, triage-grade), LIMITS.md
+annex_phenomimicry/         calibrated compound x CRISPR-KO concordance: phenomimic pair
+                            tables, top-100 SAR-family list, empirical-p validation, hub flags
 annex_chemistry/            novel_bb_generalization.csv, attribution_certificate.csv,
                             activity_cliffs.csv, chemotype_series.csv, bb_effect_rankings.csv
 annex_same_well/            same-well control study: 11,435 wells x 35 controls with paired
                             448-d image + 32-d RNA latents per well, evidence tables, README
-annex_controls/             measured mRNA profiles of the 35 control compounds: 6,000-gene
-                            surfaces, 32-d usages, and per-batch pseudobulk replicates
-                            (256,052 wells, 5 cell-line contexts), README
 docs/                       WHY_THIS_MATTERS, SCIENTIFIC_OVERVIEW, METHODS, DATA_DICTIONARY,
-                            INTERPRETATION_LIMITS, REPRODUCTION, terminology.json
+                            REPRODUCTION, terminology.json
 src/zscreen_program_package/  thin loader + verification library (no model training code)
 examples/                   4 notebooks: quickstart usages, reproduce benchmark,
                             browse hypotheses, join imaging
@@ -85,8 +94,7 @@ provenance/                 file manifest (frozen at release)
   `START_HERE.md` bottom half → `annex_hypotheses/README.md` →
   `annex_imaging/README.md` → `annex_same_well/README.md` →
   `annex_chemistry/README.md` → `examples/03` and `examples/04`.
-  Depth: `docs/SCIENTIFIC_OVERVIEW.md`,
-  `docs/INTERPRETATION_LIMITS.md`.
+  Depth: `docs/SCIENTIFIC_OVERVIEW.md`.
 
 ## Install and quickstart
 
@@ -121,14 +129,13 @@ python verify.py --full    # additionally rechecks sha256 against provenance/fil
 
 The fast check validates the row-alignment contract (every matrix
 against its compounds parquet), basis shapes, usage dimension 32, the
-6,000-row panel, the 3,754-row hypothesis ledger, the same-well
+6,000-row panel, the 1,027-row hypothesis ledger, the same-well
 tables, and public-ID formats. `--full` rehashes every file once
 `provenance/file_manifest.csv` is present.
 
 ## Citation and license
 
-Cite per `CITATION.cff` (concept DOI [10.5281/zenodo.22003566](https://doi.org/10.5281/zenodo.22003566),
-which resolves to the latest version;
+Cite per `CITATION.cff` (DOI [10.5281/zenodo.22003567](https://doi.org/10.5281/zenodo.22003567);
 data at https://huggingface.co/datasets/Zafrens/zscreen-pilot).
 Software is Apache License 2.0. Data and model weights are CC BY 4.0.
 Chemical structures are not included. See `LICENSE.md`.

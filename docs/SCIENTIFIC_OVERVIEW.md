@@ -139,7 +139,7 @@ and the panel-difference note are in `annex_imaging/README.md`.
 `annex_hypotheses/` turns the program and grammar layers into tiered
 leads: 16 distilled anchor leads with kill/confirm experiments, the
 26-group program atlas, a sharp-SAR shortlist, and the complete
-3,754-row mining ledger labeled triage-grade on its face.
+1,027-row mining ledger labeled triage-grade on its face.
 `annex_chemistry/` holds the chemistry-facing results:
 structure-based models generalize to never-before-synthesized
 building blocks at parity with identity-based models in the deepest
@@ -147,7 +147,7 @@ context (within 0.018 in the other contexts), structure-based
 attribution is validated against measurement, and three
 public-identifier SAR tables enumerate candidate series and
 single-block effects. Both annexes generate hypotheses;
-`docs/INTERPRETATION_LIMITS.md` is the reading guide.
+`annex_hypotheses/LIMITS.md` is the reading guide.
 
 ## Signal strength by analysis level
 

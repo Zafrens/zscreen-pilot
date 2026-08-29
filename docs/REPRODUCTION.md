@@ -120,8 +120,7 @@ leads = pd.read_csv("annex_hypotheses/anchor_leads.csv")  # distilled entry poin
 
 Filter by `status` / `confidence_tier` first; the `hypothesis_triage`
 rows (98.7% of the table) are raw material for re-ranking with your own
-priors. Read `annex_hypotheses/README.md` and `LIMITS.md` alongside, and
-`docs/INTERPRETATION_LIMITS.md` for the weak-null rule and tier-matched
-null conventions.
+priors. Read `annex_hypotheses/README.md` and `LIMITS.md` alongside for
+the weak-null rule and tier-matched null conventions.
 
 

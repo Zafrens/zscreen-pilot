@@ -114,4 +114,4 @@ wd 0.01, 3-epoch warmup + cosine decay, early stop patience 8.
   shared basis v1; they are only meaningful against that basis (see
   `core/basis/basis_registry.json`).
 - **Scale.** zel028 contexts support pooled/level-level reads only; do not
-  make per-compound claims there (see `docs/INTERPRETATION_LIMITS.md`).
+  make per-compound claims there (see `docs/SCIENTIFIC_OVERVIEW.md`).

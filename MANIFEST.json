@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
   "package_name": "Z-Screen Program Package",
-  "package_version": "1.3.0",
-  "generated": "2026-08-21",
+  "package_version": "1.4.0",
+  "generated": "2026-08-29",
   "manifest_path": "provenance/file_manifest.csv",
-  "manifest_sha256": "8e277e02ac0525389101d3825249d66fb36c0fbfa36b3550486f836925f730e1",
-  "manifested_file_count": 312,
-  "manifested_bytes": 5311792157,
+  "manifest_sha256": "336a122223c947aa2eb0ea11b6edb3ae0a9dddc23615113fa7fe895427cc65b8",
+  "manifested_file_count": 296,
+  "manifested_bytes": 5304838312,
   "self_hash_policy": "MANIFEST.json and provenance/file_manifest.csv are excluded from file_manifest.csv to avoid circular self-hashing; MANIFEST.json records the CSV digest.",
   "distribution_status": "Software Apache-2.0; data and weights CC-BY-4.0 (see LICENSE.md)"
 }
