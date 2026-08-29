@@ -10,7 +10,7 @@ tags:
 
 # Z-Screen Program Package
 
-Version 1.4.0, 2026-08-29. A standalone data and reference-model
+Version 1.4.1, 2026-08-29. A standalone data and reference-model
 package centered on the shared program layer of the Z-Screen
 combinatorial chemistry screens: per-compound 32-dimensional
 program-usage vectors and harmonized 6,000-gene response surfaces
@@ -19,7 +19,7 @@ basis they are defined against, an evaluation-grade reference model,
 and five annexes (imaging, therapeutic hypotheses, chemistry,
 same-well, phenomimicry).
 
-> **New in v1.4 (2026-08-29).** The CRISPR-knockout comparison has
+> **New in v1.4.1 (2026-08-29).** The CRISPR-knockout comparison has
 > been expanded into a full annex, **`annex_phenomimicry/`**: every
 > compound signature is now scored against 43 knockout signature sets
 > from 10 public perturb-seq datasets (~18.8k target genes, ~8M
