@@ -4,9 +4,9 @@
   "package_version": "1.4.0",
   "generated": "2026-08-29",
   "manifest_path": "provenance/file_manifest.csv",
-  "manifest_sha256": "336a122223c947aa2eb0ea11b6edb3ae0a9dddc23615113fa7fe895427cc65b8",
+  "manifest_sha256": "3171526a3803dc76a2cfc9e671b668f97c2074c300843af2e394f31df8009b5b",
   "manifested_file_count": 296,
-  "manifested_bytes": 5304838312,
+  "manifested_bytes": 5304838164,
   "self_hash_policy": "MANIFEST.json and provenance/file_manifest.csv are excluded from file_manifest.csv to avoid circular self-hashing; MANIFEST.json records the CSV digest.",
   "distribution_status": "Software Apache-2.0; data and weights CC-BY-4.0 (see LICENSE.md)"
 }

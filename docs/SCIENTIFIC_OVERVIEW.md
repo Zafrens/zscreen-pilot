@@ -161,10 +161,9 @@ Values are from the reliability audits in
 |---|---|---|
 | program level (32 usages) | cross-context structure 10–20× gene space | strongest layer; headline claims live here |
 | building-block level (pooled over carriers) | split-half ~0.5–0.58 | pooled, level-level claims supported |
-| single compound (per-compound profile) | split-half 0.02–0.06 at current depth | input to an aggregate, not a standalone call |
 
-The single-compound numbers describe present sequencing depth, not a
-ceiling on the method. Additional wells on compounds that are
+Per-compound profiles are inputs to these aggregates, not standalone
+calls. Additional wells on compounds that are
 presently singletons move claims from brick-level toward
 molecule-level; that is one of the three scaling directions in
 `docs/WHY_THIS_MATTERS.md`.
