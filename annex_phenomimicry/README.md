@@ -127,10 +127,8 @@ three best member z-scores), log family size, and a replication bonus for
 families spanning more than one context. Under a recipe-preserving,
 degree-matched null (100 draws), the guardrail-filtered set yields 166
 such families against 108.8 ± 9.4 expected by chance, above all 100
-draws. The targets concentrate in cell-cycle and proteostasis machinery,
-the genes with the strongest knockout phenotypes in perturb-seq. Outside
-the ranked families, strong non-hub hits are mostly structural
-singletons; treat those as a watch-list.
+draws. Outside the ranked families, strong non-hub hits are mostly
+structural singletons; treat those as a watch-list.
 
 ## The reversal track
 

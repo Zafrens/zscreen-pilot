@@ -10,7 +10,7 @@ tags:
 
 # Z-Screen Program Package
 
-Version 1.4.2, 2026-08-29. A standalone data and reference-model
+Version 1.4.3, 2026-08-29. A standalone data and reference-model
 package centered on the shared program layer of the Z-Screen
 combinatorial chemistry screens: per-compound 32-dimensional
 program-usage vectors and harmonized 6,000-gene response surfaces
@@ -19,6 +19,11 @@ basis they are defined against, an evaluation-grade reference model,
 and five annexes (imaging, therapeutic hypotheses, chemistry,
 same-well, phenomimicry).
 
+> **New in v1.4.3 (2026-08-29).** Anchor-lead external-triangulation
+> figures are reconciled to the 1,000-draw null
+> (`annex_hypotheses/anchor_leads.csv`), with minor text fixes in
+> `annex_phenomimicry/`.
+>
 > **New in v1.4.2 (2026-08-29).** The phenomimicry calibration now runs
 > on a 1,000-draw random-target empirical null with a hub-matched
 > companion null (`validation_empirical_p.csv`: `p_emp`, `p_emp_hub`),
