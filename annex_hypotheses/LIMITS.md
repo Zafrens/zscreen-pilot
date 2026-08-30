@@ -54,10 +54,12 @@ flag marks every row where this applies.
 
 Compound ↔ CRISPR-knockout concordance lives in
 `annex_phenomimicry/`: 43 knockout signature sets from 10
-perturb-seq datasets, calibrated against a random-target empirical
-null. Recovery of known pharmacology is real but modest on average
-and concentrated in 25 control → target pairs at the null floor,
-named individually in that annex. The dominant background is a
+perturb-seq datasets, calibrated against a 1,000-draw random-target
+empirical null with a hub-matched companion null. Recovery of known
+pharmacology concentrates in a small set of control → target pairs
+with multi-cell, multi-dataset support (STC-15/STM2457→METTL3,
+MSC1094308→DOT1L, GSK126→EZH2, GCN2-IN-7→EIF2AK4), named
+individually in that annex. The dominant background is a
 generic RNA/stress hub axis; check `hub_flag` before treating any
 hit as specific. Same-MOA controls do not cluster with each other
 in any cell line, which bounds what an MOA-level claim can mean

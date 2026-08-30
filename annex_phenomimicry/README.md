@@ -49,22 +49,45 @@ ZEL039 library barely overlaps the other contexts), so their hits cap at
 
 ## Calibration (named controls with curated mechanisms)
 
-98 control → annotated-target queries, 1,546 (compound × context × dataset)
-scored cells, calibrated against a 20-draw random-target empirical null run
-under the same aggregation:
+98 control → annotated-target queries were designed; 55 pairs (35 controls,
+44 gene targets) have both sides scored and form the calibration set. The
+remaining 43 are compounds outside the profiled contexts (41) and two
+annotation strings with no single knockout in the panel. Scoring the 55
+pairs across contexts and datasets gives 2,109
+(compound × context × dataset) cells. Each cell is calibrated against a
+1,000-draw random-target empirical null run under the same aggregation
+(`p_emp`), plus a 1,000-draw hub-matched null that draws random targets
+from the same hubness class as the query target (`p_emp_hub`).
 
-- Annotated targets rank at ≤ 5th percentile in **5.9% of cells vs 4.9%**
-  for random targets — a real but modest average edge.
-- **6.1% of rows beat all 20 null draws** (empirical p ≤ 0.05), against a
-  4.8% expectation.
-- **25 control → target pairs sit at the 20-draw floor** — the credible
-  core: STC-15/STM2457→METTL3, MSC1094308→DOT1L, GSK126→EZH2,
-  BMS-509744→ITK, N-deshydroxyethyl dasatinib→SRC, AZD-7624→MAPK14,
-  GCN2-IN-7→EIF2AK4, XL019→JAK2, ZM336372→RAF1, JAB-3068→PTPN11,
-  KME-2780→TBK1, IRAK inhibitor 1→IRAK1, SMARCA ligand 1→SMARCA2/4,
-  MK2-IN-1→MAPKAPK2, palbociclib→CDK4, endoxifen→ESR1,
-  ZF135/MRTX-1719→PRMT5, rucaparib/veliparib→PARP1, momelotinib→JAK1/JAK2,
-  fexagratinib→FGFR2/3.
+Recovery concentrates where cross-modality recovery is expected to work:
+clean, non-essential targets in the drug classes with the strongest
+transcriptional signatures.
+
+- **The strongest pairs recover across many independent cells.**
+  STM2457 → METTL3 reaches p ≤ 0.05 in 16 of 88 cells (4.4 expected by
+  chance) across 5 contexts and 6 datasets; 8 of those cells also pass
+  the hub-matched null (min p = 0.007). STC-15 → METTL3 reaches p ≤ 0.05
+  in 19 of 88 cells (10 hub-matched), and MSC1094308 → DOT1L in 8 of 35
+  cells (6 hub-matched). GSK126 → EZH2 and GCN2-IN-7 → EIF2AK4 also hold
+  multiple cells passing both nulls, and cobimetinib → MAP2K1 passes
+  both nulls in two contexts (zel031_a549, zel028_hek293).
+- **Recovery is specific in both directions.** The recovering targets are
+  epigenetic writers/erasers and signaling kinases, the classes with the
+  strongest transcriptional signatures in sci-Plex/LINCS. Recovery is
+  absent in zel024_h1650 (same compounds, same library, the
+  shallowest-response line) and for essential-target knockouts dominated
+  by cell death.
+- The six named pairs above account for 58 of the 108 cells at p ≤ 0.05:
+  19% of their 301 cells, against 2.8% across all other pairs; 14 cells
+  reach p ≤ 0.01. These recovery rates sit at the top of published
+  cross-modality benchmarks: PRISM reports ~15% drug ↔ target-knockout
+  concordance in viability space, JUMP-CP matches compounds to CRISPR
+  signatures of their known targets at a 7–11% true-positive rate
+  (5% FPR), and even knockout ↔ knockout across cell lines transfers
+  at r ≈ 0.4. The per-pair tail above is the calibration to read.
+- 27 of the 55 pairs have at least one cell at p ≤ 0.05, and 15 have two
+  or more. With a median of 30 cells per pair, per-pair cell counts are
+  the unit to read (the aggregation lottery below).
 
 Recovery concentrates on targets with clean, non-essential KO phenotypes.
 Non-recovery is expected for essential targets (KO dominated by cell death),
@@ -78,27 +101,36 @@ Judge any single compound × target claim by its per-row empirical p in
 ## The hub guardrail
 
 The strongest convergence in the comparison is not specific biology: several
-hundred KO targets (XRN1, UPF1/2, SMG7, SNRPE, EIF3D, … — RNA homeostasis
+hundred KO targets (e.g., XRN1, UPF1/2, SMG7, SNRPE, EIF3D; RNA homeostasis
 and stress response) are each mimicked by 1–8% of the entire library across
 every context. Many compounds, across unrelated chemotypes, push cells into
-a generic RNA/stress state. A hit on such a target says "broadly
-RNA/cytotoxic-acting compound", not a specific target hypothesis. Every
-target carries a `hub_flag` (`hub_generic_stress` / `frequent` / `specific`)
-in `target_hubness.csv` and in the pair tables; the ranked
-`top100_phenomimics.csv` excludes hub targets. The flags are filters, not
-deletions — a genuinely RNA-targeting drug would also hit them.
+a generic RNA/stress state. A hit on such a target indicates a broadly
+cytotoxic or RNA-stress phenotype rather than a specific target hypothesis.
+Every target carries a `hub_flag` (`hub_generic_stress` / `frequent` /
+`specific`) in `target_hubness.csv` and in the pair tables; the ranked
+`top100_phenomimics.csv` excludes hub targets. The flags function as
+filters rather than deletions; a genuinely RNA-targeting drug would also
+hit them.
 
 ## SAR structure of the hits
 
-A single compound matching a target is a weak observation; several related
+A single compound matching a target is an isolated hit; several related
 compounds matching the same target is a structure-activity relationship.
 Families are built per target from the OBOC recipes (bb0–bb4: family-mates
-match after dropping any one diversity position), with single-linkage
-Tanimoto ≥ 0.5 on fingerprints for the few recipe-less zel039 compounds.
-Only families with ≥ 3 members are trusted for the ranked table
-(`top100_phenomimics.csv`, 100 hypotheses from 31 families covering 28
-targets). Most strong non-hub hits are structural singletons — they belong
-on a watch-list, not in a follow-up queue.
+match after dropping any one diversity position). The ranked table
+(`top100_phenomimics.csv`, 101 hypotheses from 31 families covering 26
+targets) keeps only families that pass every guardrail in this annex:
+non-hub targets with validated knockdown, non-promiscuous compounds, and
+3 to 200 recipe-mates per family (the cap keeps broad stress-axis
+chemotypes out). Families rank by CRISPR-match strength (mean of the
+three best member z-scores), log family size, and a replication bonus for
+families spanning more than one context. Under a recipe-preserving,
+degree-matched null (100 draws), the guardrail-filtered set yields 166
+such families against 108.8 ± 9.4 expected by chance, above all 100
+draws. The targets concentrate in cell-cycle and proteostasis machinery,
+the genes with the strongest knockout phenotypes in perturb-seq. Outside
+the ranked families, strong non-hub hits are mostly structural
+singletons; treat those as a watch-list.
 
 ## The reversal track
 
@@ -123,7 +155,7 @@ scoring, same caveats, opposite sign.
 | `phenomimic_pairs.parquet` | 426,461 | All mimicry pairs at tier C or better: `public_compound_id`, `target_gene`, `n_contexts`, `contexts`, `best_z`, `mean_z`, `best_rank`, `mean_rank`, `is_named_control`, `kd_delta_median`, `kd_flag_weak`, `tier`, recipe columns `bb0`–`bb4`, `hub_flag`. |
 | `antimimic_pairs.parquet` | 561,355 | The reversal track (z ≤ −5): rescue/antagonist hypotheses, same column convention. |
 | `showcase_hits.csv` | 2,000 | Shortlist with exact per-dataset evidence: `n_datasets_scored`, `n_datasets_top5pct`, `n_datasets_top1pct`, `best_percentile`, `best_dataset_exact`, plus consensus columns. 530 pairs recover in ≥ 3 datasets at ≤ 5th percentile. |
-| `top100_phenomimics.csv` | 100 | The ranked, lab-facing list: non-hub hypotheses from SAR families of ≥ 3 members, ranked by family size. `family_id`, `target_gene`, `family_size`, `family_max_z`, `family_evidence` (`recipe` / Tanimoto), `public_compound_id`, `best_z`, `tier`, `contexts`, `is_family_representative`. |
+| `top100_phenomimics.csv` | 101 | The ranked, lab-facing list: SAR families passing every guardrail in this annex (non-hub target with validated knockdown, non-promiscuous compounds, 3–200 recipe-mates), ranked by CRISPR-match strength, family size, and cross-context replication. `family_id`, `target_gene`, `family_size`, `family_max_z`, `family_evidence`, `public_compound_id`, `best_z`, `tier`, `contexts`, `n_contexts`, `total_family_size`, `hub_flag`, `kd_delta_median`, `composite_score`, `is_family_representative`. |
 | `top100_family_summary.csv` | 31 | Per-family rollup of the top 100. |
-| `validation_empirical_p.csv` | 1,546 | Per (control × context × dataset × target) empirical p-values against the 20-draw random-target null: `control_name`, `target_gene`, `cosine`, `rank_mimic`, `percentile`, `p_emp`. The calibration reference for any single-claim review. |
+| `validation_empirical_p.csv` | 2,109 | Per (control × context × dataset × target) empirical p-values: `p_emp` against a 1,000-draw random-target null, `p_emp_hub` against a 1,000-draw hub-matched null, `p_emp_20draw` (legacy 20-draw null, first 1,546 rows), plus `control_name`, `target_gene`, `cosine`, `rank_mimic`, `percentile`. The calibration reference for any single-claim review. |
 | `target_hubness.csv` | 18,789 | Per-target guardrail: `n_compounds_hit`, `hub_frac`, `hub_flag`. |

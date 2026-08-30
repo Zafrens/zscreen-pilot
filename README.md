@@ -10,7 +10,7 @@ tags:
 
 # Z-Screen Program Package
 
-Version 1.4.1, 2026-08-29. A standalone data and reference-model
+Version 1.4.2, 2026-08-29. A standalone data and reference-model
 package centered on the shared program layer of the Z-Screen
 combinatorial chemistry screens: per-compound 32-dimensional
 program-usage vectors and harmonized 6,000-gene response surfaces
@@ -19,17 +19,28 @@ basis they are defined against, an evaluation-grade reference model,
 and five annexes (imaging, therapeutic hypotheses, chemistry,
 same-well, phenomimicry).
 
+> **New in v1.4.2 (2026-08-29).** The phenomimicry calibration now runs
+> on a 1,000-draw random-target empirical null with a hub-matched
+> companion null (`validation_empirical_p.csv`: `p_emp`, `p_emp_hub`),
+> target-symbol normalization widens control coverage to all 35 named
+> controls (55 scored control → target pairs, adding cobimetinib →
+> MAP2K1 to the recovered set), and the ranked top-100 SAR-family table
+> is rebuilt on families passing every annex guardrail (non-hub target,
+> validated knockdown, non-promiscuous compounds, 3–200 recipe-mates),
+> ranked by CRISPR-match strength, family size, and cross-context
+> replication. **If you downloaded an earlier version, re-fetch
+> `annex_phenomimicry/`, `annex_hypotheses/`, and `docs/`.**
+>
 > **New in v1.4.1 (2026-08-29).** The CRISPR-knockout comparison has
 > been expanded into a full annex, **`annex_phenomimicry/`**: every
 > compound signature is now scored against 43 knockout signature sets
 > from 10 public perturb-seq datasets (~18.8k target genes, ~8M
 > perturbed cells), calibrated against a random-target empirical null
-> (25 known drug → target recoveries at the null floor, named in the
-> annex), with a per-target hub guardrail and a ranked top-100
-> SAR-family table. This replaces the previous single-atlas triage
-> track, and the hypothesis ledger is correspondingly slimmer
-> (1,027 rows). **If you downloaded an earlier version, re-fetch
-> `annex_phenomimicry/`, `annex_hypotheses/`, and `docs/`.**
+> (named-control pharmacology recovered across independent contexts and
+> datasets, METTL3 and DOT1L inhibitor classes the strongest), with a
+> per-target hub guardrail and a ranked top-100 SAR-family table. This
+> replaces the previous single-atlas triage track, and the hypothesis
+> ledger is correspondingly slimmer (1,027 rows).
 
 The screens are a pilot relative to the chemical space the same
 libraries can generate. The objects that scale are the building-block

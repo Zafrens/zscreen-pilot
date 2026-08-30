@@ -339,15 +339,21 @@ against a random-target empirical null.
   `best_percentile`, `max_cosine`, `median_percentile`,
   `best_dataset_exact`) plus consensus columns and control annotations
   (`name`, `moa_class`, `primary_target`).
-- `top100_phenomimics.csv` (100 rows) — `rank`, `family_id`,
+- `top100_phenomimics.csv` (101 rows) — `rank`, `family_id`,
   `target_gene`, `family_size`, `family_max_z`, `family_evidence`,
   `public_compound_id`, `best_z`, `tier`, `contexts`, `kd_flag_weak`,
-  `is_family_representative`.
+  `is_family_representative`, `n_contexts`, `family_contexts`,
+  `total_family_size`, `hub_flag`, `kd_delta_median`, `mean_top3_z`,
+  `replication_factor`, `composite_score`.
 - `top100_family_summary.csv` (31 rows) — `family_id`, `target_gene`,
-  `family_size`, `family_max_z`, `family_evidence`, `n_in_top100`.
-- `validation_empirical_p.csv` (1,546 rows) — `context`, `dataset`,
+  `family_size`, `family_max_z`, `family_evidence`, `n_in_top100`,
+  `total_family_size`, `n_contexts`, `family_contexts`, `hub_flag`,
+  `kd_delta_median`, `mean_top3_z`, `replication_factor`,
+  `composite_score`.
+- `validation_empirical_p.csv` (2,109 rows) — `context`, `dataset`,
   `public_compound_id`, `target_gene`, `cosine`, `rank_mimic`,
-  `n_targets`, `n_shared_genes`, `percentile`, `control_name`, `p_emp`.
+  `n_targets`, `n_shared_genes`, `percentile`, `control_name`, `p_emp`,
+  `p_emp_hub`, `p_emp_20draw`.
 - `target_hubness.csv` (18,789 rows) — `target_gene`,
   `n_compounds_hit`, `hub_frac`, `hub_flag`.
 
