@@ -66,6 +66,8 @@ CORE_STATIC_FILES = (
     "core/benchmark/correction_arm.csv",
     "core/benchmark/cross_context_probe.csv",
     "core/benchmark/program_signal_concentration.csv",
+    "core/benchmark/fold0_baseline_comparison.csv",
+    "core/benchmark/fold0_reference_model_summary.csv",
 )
 
 MODEL_FILES = (
@@ -91,7 +93,7 @@ ANNEX_FILES = (
     "annex_imaging/decomposition.csv",
     "annex_imaging/prediction_score_summary.csv",
     "annex_hypotheses/README.md",
-    "annex_hypotheses/LIMITS.md",
+    "annex_hypotheses/HOW_TO_READ.md",
     "annex_hypotheses/anchor_leads.csv",
     "annex_hypotheses/program_atlas.csv",
     "annex_hypotheses/sharp_sar_candidates.csv",
@@ -110,6 +112,8 @@ ANNEX_FILES = (
     "annex_same_well/evidence/per_control_coupling.csv",
     "annex_same_well/evidence/learning_curve.csv",
     "annex_same_well/evidence/learning_curve.png",
+    "annex_clusters/README.md",
+    "annex_clusters/cluster_census.csv",
 )
 
 PHENOMIMICRY_FILES = (
@@ -120,6 +124,7 @@ PHENOMIMICRY_FILES = (
     "annex_phenomimicry/top100_phenomimics.csv",
     "annex_phenomimicry/top100_family_summary.csv",
     "annex_phenomimicry/validation_empirical_p.csv",
+    "annex_phenomimicry/ensemble_rescoring_panel.csv",
     "annex_phenomimicry/target_hubness.csv",
 )
 
@@ -130,6 +135,7 @@ DOC_FILES = (
     "docs/DATA_DICTIONARY.md",
     "docs/REPRODUCTION.md",
     "docs/terminology.json",
+    "docs/summary/README.md",
 )
 
 EXAMPLE_FILES = (
@@ -263,6 +269,18 @@ def _schema_checks(root: Path) -> list[CheckResult]:
     ok = ("kill_confirm_experiment" in leads.columns
           and leads["kill_confirm_experiment"].notna().all())
     record(ok, "schema:anchor-leads", f"{len(leads)} rows, kill/confirm on every row")
+
+    # Cluster census: exactly 1,007 clusters, all at coherence q <= 0.01.
+    census = pd.read_csv(root / "annex_clusters" / "cluster_census.csv")
+    ok = len(census) == 1007 and bool((census["coherence_q"] <= 0.01).all())
+    record(ok, "schema:cluster-census",
+           f"{len(census)} clusters, max coherence_q {census['coherence_q'].max():.5f}")
+
+    # Ensemble rescoring panel: 43 control pairs, 11 consistent.
+    panel = pd.read_csv(root / "annex_phenomimicry" / "ensemble_rescoring_panel.csv")
+    ok = len(panel) == 43 and int(panel["consistent_pair"].sum()) == 11
+    record(ok, "schema:rescoring-panel",
+           f"{len(panel)} pairs, {int(panel['consistent_pair'].sum())} consistent")
 
     # ID format spot checks.
     compounds = pd.concat([

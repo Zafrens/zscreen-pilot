@@ -1,6 +1,6 @@
 # Controls Annex
 
-Measured mRNA response profiles of the 35 well-known control compounds —
+Measured mRNA response profiles of the 35 well-known control compounds,
 the most deeply replicated measurements in the Z-Screen pilot: 256,052
 wells in total, across five cell-line contexts, with every control
 measured in hundreds to thousands of wells per context. Use this layer
@@ -33,8 +33,8 @@ matrices and ship here as their own layer. Everything in this annex is
 | `control_compound_map.csv` | 35 rows | `control_name` ↔ `public_compound_id` ↔ `public_compound_name`. The same mapping ships in `annex_same_well/`; copied here so the annex is self-contained. |
 | `control_surfaces_{context}.npy` | 35 × 6,000 float32 | Per-control harmonized surfaces on the 6,000-gene panel: device-centered log1p-CP10k expression, one row per control, columns aligned to `core/surfaces/harmonized_6000_genes.parquet`. Same pipeline recipe and gene space as `core/surfaces/`. |
 | `control_surfaces_{context}_compounds.parquet` | 35 rows | Row key for the surface matrix: `public_compound_id`, `control_name`, `n_wells`, `n_devices` (batches), `total_umis`. Row *i* of the parquet names row *i* of the `.npy` (the row-alignment contract of `core/`, applied here). |
-| `control_usages_k32.parquet` | 175 rows | Per-control 32-program usages for all five contexts: `control_context`, `public_compound_id`, `control_name`, `n_wells`, `u_P01`–`u_P32`. Each control surface projected onto the pinned k = 32 basis with the same free-sign least-squares operator as `core/usages/`. |
-| `control_pseudobulk_counts_{context}.npy` | (n_pseudobulks) × 6,000 float32 | The replicate layer: summed UMI counts per control × batch pseudobulk, restricted to the 6,000-gene panel. Raw summed counts, **not** normalized — normalize before use (see below). |
+| `control_usages_k32.parquet` | 175 rows | Per-control 32-program usages for all five contexts: `control_context`, `public_compound_id`, `control_name`, `n_wells`, `u_P01`-`u_P32`. Each control surface projected onto the pinned k = 32 basis with the same free-sign least-squares operator as `core/usages/`. |
+| `control_pseudobulk_counts_{context}.npy` | (n_pseudobulks) × 6,000 float32 | The replicate layer: summed UMI counts per control × batch pseudobulk, restricted to the 6,000-gene panel. Raw summed counts, **not** normalized. Normalize before use (see below). |
 | `control_pseudobulks_{context}.parquet` | n_pseudobulks rows | Row key for the pseudobulk matrix: `public_compound_id`, `control_name`, `batch_id` (anonymized per context), `n_wells`, `total_umis` (summed over all 46,944 genes, so CP10k normalization is exactly reproducible from the panel counts). |
 
 Replication per context (wells / pseudobulks / batches):
@@ -71,7 +71,7 @@ and `data.load_control_usages()` wrap exactly these reads.
 ## Three things to know before analyzing
 
 - **Controls were never used in any fitting.** The shared basis was fit
-  on training folds 1–4 of the library compounds only, and the reference
+  on training folds 1-4 of the library compounds only, and the reference
   model was fit the same way. The controls are an untouched, independent
   measurement set; the fold-0 test-bed convention
   (`docs/DATA_DICTIONARY.md`) is unaffected.
@@ -83,7 +83,7 @@ and `data.load_control_usages()` wrap exactly these reads.
   contexts. `zic008_hek293clone` has only 2 batches; batch-level
   statistics there are thin even though well counts are deep.
 - **Centering is within the controls-only run.** Per-batch centering
-  subtracts each batch's mean over that run's profiles — because the run
+  subtracts each batch's mean over that run's profiles, because the run
   contained only the 35 controls, that mean is a control-population
   mean. This is the same recipe as `core/` surfaces applied to the
   controls-only run, but the centering population differs from the
@@ -98,7 +98,7 @@ and `data.load_control_usages()` wrap exactly these reads.
 
 The same-well annex profiles the same 35 controls in HEK293 with paired
 microscopy: 448-dimensional image latents and 32-dimensional RNA latents
-per well. Its RNA latents (`D00`–`D31`) are the same-well assay's own
+per well. Its RNA latents (`D00`-`D31`) are the same-well assay's own
 encoder space, **not** the 32-program usages in this annex; the two
 32-dimensional spaces must not be concatenated or compared coordinate by
 coordinate. This annex adds the gene-level view (6,000-gene surfaces and
@@ -132,7 +132,7 @@ their program projections) and the four other cell lines.
 
 - Well-level UMI counts were pooled per control × batch, normalized to
   log1p-CP10k, batch-centered, and averaged per control with capped
-  square-root well-count weights (cap 20 wells) — steps 1–4 of
+  square-root well-count weights (cap 20 wells), steps 1-4 of
   `docs/METHODS.md` applied to the controls-only run, then restricted to
   the harmonized 6,000-gene panel. No depth-correction layer is applied
   (the shared program layer is correction-free; METHODS step 5).

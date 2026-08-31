@@ -62,7 +62,7 @@ by mean rank across the 8 predictive contexts from per-gene log1p-CP10k
 variance rankings recomputed at full 46,944-gene width with the pipeline
 estimator. The panel definition is
 `core/surfaces/harmonized_6000_genes.parquet`
-(`harmonized_panel_6000_v1`): `panel_position` 0–5999, `gene_index` (raw
+(`harmonized_panel_6000_v1`): `panel_position` 0-5999, `gene_index` (raw
 position in the 46,944-gene space), `gene` (symbol). **Gene symbols come
 only from this file**; never map panel positions through any context's
 released 3,000-gene panel, which is a different index space (see
@@ -77,7 +77,7 @@ device).
 The shared program basis (`shared_program_basis_v1`) is a semi-NMF
 factorization: gene loadings W ≥ 0, shape (32, 6000), fit on the stacked,
 context-scaled harmonized surfaces. Fitting was restricted to **training
-folds 1–4** (fold = SHA256(`public_compound_id`) mod 5; fold 0 untouched
+folds 1-4** (fold = SHA256(`public_compound_id`) mod 5; fold 0 untouched
 by any fitting), with at most 10,000 compounds sampled per context. A k =
 12 companion basis (`shared_program_basis_k12_v1`) ships for
 lower-resolution work; k = 32 is the shipped resolution (evidence:
@@ -93,23 +93,6 @@ the shared k = 32 basis: one 32-dimensional coordinate vector per compound
 per context, shipped as `core/usages/usages_{context}.npy`. Column *j* is
 program P*j*+1 of the pinned basis in every context and every derived
 table in the package.
-
-## 8a. Control contexts (annex_controls/)
-
-The 35 control compounds were profiled in a separate controls-only
-library run across five cell lines (`annex_controls/`). Their surfaces
-follow steps 1–4 as written — wells pooled per control × device
-pseudobulk, log1p-CP10k, per-device mean centering (the run contained
-only controls, so each device's centering mean is its control-population
-mean), then a capped square-root well-count weighted mean per control
-(cap 20 wells) — and are restricted to the harmonized 6,000-gene panel.
-No depth layer (step 5) is applied, matching the correction-free shared
-program layer. Control usages are the step-8 projection of those
-surfaces onto the same pinned basis; the per-context scale factors of
-the core contexts have no control-run counterpart. The replicate layer
-(per-control × device pseudobulk counts with full-width UMI totals)
-ships alongside so normalization and centering choices can be rebuilt
-or varied downstream.
 
 ## 9. Reference model
 

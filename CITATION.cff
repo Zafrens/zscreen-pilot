@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "Please cite this software and data release when using the package."
 title: "Z-Screen Program Package"
 type: dataset
-version: 1.4.3
-date-released: 2026-08-29
+version: 1.5.0
+date-released: 2026-08-31
 authors:
   - name: "Zafrens, Inc."
     email: hello@zafrens.com
@@ -14,7 +14,7 @@ repository-code: "https://github.com/Zafrens/zscreen-pilot"
 identifiers:
   - type: doi
     value: 10.5281/zenodo.22003566
-    description: Zenodo concept DOI — always resolves to the latest version (code and documentation)
+    description: Zenodo concept DOI. Always resolves to the latest version (code and documentation)
   - type: url
     value: "https://huggingface.co/datasets/Zafrens/zscreen-pilot"
     description: Full package (arrays and model weights)

@@ -11,7 +11,7 @@ Z-Screen profiles combinatorial chemistry libraries by few-cell RNA
 sequencing in **nanowells**. Compounds are assembled from a fixed
 vocabulary of chemical **building blocks** (BBs), so a compound is
 fully described by its **recipe**: which block sits at which position
-(`bb0`–`bb4`). Building blocks carry public, opaque identifiers
+(`bb0`-`bb4`). Building blocks carry public, opaque identifiers
 (`BB_##########`) throughout this package; structures are not included
 (see `annex_chemistry/README.md` for the NDA path).
 
@@ -41,7 +41,7 @@ Relative to the grids the same libraries define, these screens are a
 pilot. The `zel028` library is an 87 × 88 × 88 grid (673,728 recipes),
 of which 117,950 are measured. Across all four libraries the design
 grids × the cell lines already screened comprise about 2.1 million
-compound–context states, eleven times the number of measurements
+compound-context states, eleven times the number of measurements
 released here. That expansion, and why a new building block is the
 incremental object, is developed in `docs/WHY_THIS_MATTERS.md`.
 
@@ -60,18 +60,18 @@ point in a 32-number **program-usage space**.
 The program layer is a design choice, not a compression convenience,
 and it concentrates signal:
 
-- Cross-context structure is 10–20× stronger in program space than
+- Cross-context structure is 10-20× stronger in program space than
   gene by gene (the same chemistry moved to a second cell line is far
   more visible in its 32 program coordinates than in any individual
   gene).
 - Building-block-level effects, the effect of one block averaged over
-  all compounds carrying it, transfer across contexts at 2–3× the
+  all compounds carrying it, transfer across contexts at 2-3× the
   per-compound level: pooling over the recurring substructure is
   exactly what the combinatorial design is for.
 - Image models and chemistry models both predict the 32 usages far
   better than they predict genes (image→programs reaches r = 0.135
-  while direct image→gene prediction reaches 0.014–0.032 decoded
-  mcPearson, 6–14% of the ~0.24 oracle ceiling; evidence:
+  while direct image→gene prediction reaches 0.014-0.032 decoded
+  mcPearson, 6-14% of the ~0.24 oracle ceiling; evidence:
   `annex_imaging/prediction_score_summary.csv`,
   `annex_imaging/decode_through_comparison.csv`).
 
@@ -116,7 +116,7 @@ in the per-context target and decoder side of any downstream model;
 the shared program space itself is correction-free.
 
 **Pinned basis, held-out fold 0.** The basis is pinned by hash
-(`core/basis/basis_registry.json`) and was fit on training folds 1–4
+(`core/basis/basis_registry.json`) and was fit on training folds 1-4
 only, with fold 0 untouched by any fitting, so collaborators inherit
 a clean test bed. Usage coordinates are valid only against the pinned
 basis; a refit would rotate program identities.
@@ -147,7 +147,7 @@ context (within 0.018 in the other contexts), structure-based
 attribution is validated against measurement, and three
 public-identifier SAR tables enumerate candidate series and
 single-block effects. Both annexes generate hypotheses;
-`annex_hypotheses/LIMITS.md` is the reading guide.
+`annex_hypotheses/HOW_TO_READ.md` is the reading guide.
 
 ## Signal strength by analysis level
 
@@ -159,8 +159,14 @@ Values are from the reliability audits in
 
 | analysis level | typical scale | reading |
 |---|---|---|
-| program level (32 usages) | cross-context structure 10–20× gene space | strongest layer; headline claims live here |
-| building-block level (pooled over carriers) | split-half ~0.5–0.58 | pooled, level-level claims supported |
+| program level (32 usages) | cross-context structure 10-20× gene space | strongest layer; headline claims live here |
+| building-block level (pooled over carriers) | split-half ~0.5-0.58 | pooled, level-level claims supported |
+
+Unsupervised structure sits at the same aggregate level: an
+analog-family census finds 1,007 clusters across the eight contexts
+(3-137 members, median 4), every cluster coherent at q <= 0.01
+against 200 size-matched random compound sets (median coherence
+z = 4.8).
 
 Per-compound profiles are inputs to these aggregates, not standalone
 calls. Additional wells on compounds that are

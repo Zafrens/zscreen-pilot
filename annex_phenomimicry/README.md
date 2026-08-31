@@ -1,4 +1,4 @@
-# annex_phenomimicry/ — compound × CRISPR-knockout concordance
+# annex_phenomimicry/: compound × CRISPR-knockout concordance
 
 A compound **mimics** a gene knockout (KO) when its transcriptional signature
 moves genes the way the KO does. This annex compares every compound signature
@@ -13,8 +13,8 @@ pathway, not a target claim.
 **Compound side.** Per-compound device-centered log1p-CP10k profiles at full
 46,944-gene width, built pipeline-faithful to `docs/METHODS.md` (median
 Pearson ≥ 0.99999 against the released 6,000-gene surfaces in every context),
-then per-gene MAD z-scored within each context. 190,964 compound × context
-signatures covering 163,001 unique compounds across the 8 contexts.
+then per-gene MAD z-scored within each context. 190,699 compound-context
+signatures covering 162,914 unique compounds across the 8 contexts.
 
 **CRISPR side.** 43 signature sets from 10 source perturb-seq datasets
 (X-Atlas HEK293T/HCT116 genome-wide; Replogle 2022 K562 genome-wide +
@@ -28,7 +28,7 @@ dataset is self-referenced against its internal controls.
 ## Scoring
 
 Per (context × dataset) pair: cosine similarity between compound and KO
-z-profiles over the genes both sides measured (8.2k–25.4k shared genes per
+z-profiles over the genes both sides measured (8.2k-25.4k shared genes per
 pair), standardized per target within the pair, then a Stouffer consensus
 across all 43 datasets weighted by √(shared genes). Single-dataset hits are
 noisy; consistency across independent datasets is what makes a hit credible.
@@ -65,7 +65,7 @@ transcriptional signatures.
 
 - **The strongest pairs recover across many independent cells.**
   STM2457 → METTL3 reaches p ≤ 0.05 in 16 of 88 cells (4.4 expected by
-  chance) across 5 contexts and 6 datasets; 8 of those cells also pass
+  chance) across 5 contexts and 5 datasets; 8 of those cells also pass
   the hub-matched null (min p = 0.007). STC-15 → METTL3 reaches p ≤ 0.05
   in 19 of 88 cells (10 hub-matched), and MSC1094308 → DOT1L in 8 of 35
   cells (6 hub-matched). GSK126 → EZH2 and GCN2-IN-7 → EIF2AK4 also hold
@@ -79,44 +79,79 @@ transcriptional signatures.
   by cell death.
 - The six named pairs above account for 58 of the 108 cells at p ≤ 0.05:
   19% of their 301 cells, against 2.8% across all other pairs; 14 cells
-  reach p ≤ 0.01. These recovery rates sit at the top of published
+  reach p ≤ 0.01 panel-wide, 7 of them in the six named pairs. These
+  recovery rates sit at the top of published
   cross-modality benchmarks: PRISM reports ~15% drug ↔ target-knockout
   concordance in viability space, JUMP-CP matches compounds to CRISPR
-  signatures of their known targets at a 7–11% true-positive rate
+  signatures of their known targets at a 7-11% true-positive rate
   (5% FPR), and even knockout ↔ knockout across cell lines transfers
   at r ≈ 0.4. The per-pair tail above is the calibration to read.
 - 27 of the 55 pairs have at least one cell at p ≤ 0.05, and 15 have two
   or more. With a median of 30 cells per pair, per-pair cell counts are
-  the unit to read (the aggregation lottery below).
+  the unit to read (best-of-many inflation below).
 
 Recovery concentrates on targets with clean, non-essential KO phenotypes.
 Non-recovery is expected for essential targets (KO dominated by cell death),
 activity-vs-abundance pharmacology, and cell-line mismatch.
 
-**The aggregation lottery:** any statistic that takes a best over many draws
+**Best-of-many inflation:** any statistic that takes a best over many draws
 (contexts × datasets) has a null rate far above the nominal percentile.
 Judge any single compound × target claim by its per-row empirical p in
 `validation_empirical_p.csv`, never by counts of datasets or contexts.
+
+## Ensemble rescoring
+
+A second scorer sharpens the recovery above. The `ens_min` score takes, per
+compound and cell, the minimum rank of two channels run across the 43
+knockout signature sets: top-100 signed gene overlap and cosine over 1,172
+curated pathway scores (Hallmark + KEGG + Reactome). On the 43 scoreable
+control pairs, `ens_min` reaches a median best percentile of 0.018 against
+0.049 for the full-gene cosine channel, places 30 of 43 pairs at the 5%
+level (22 for cosine), and leaves 11 pairs with at least half of their
+cells in the top 20%, against 0 for cosine alone. The 11 consistent pairs:
+
+| compound | target | frac of cells in top 20% | cells |
+|---|---|---:|---:|
+| STC-15 | METTL3 | 0.57 | 88 |
+| STM2457 | METTL3 | 0.50 | 88 |
+| MSC1094308 | DOT1L | 0.69 | 35 |
+| SMARCA ligand 1 | SMARCA4 | 0.51 | 35 |
+| N-deshydroxyethyl dasatinib | SRC | 0.57 | 72 |
+| GSK126 | EZH2 | 0.50 | 30 |
+| BMS-509744 | ITK | 0.72 | 25 |
+| ceritinib | ALK | 0.70 | 10 |
+| Crizotinib | ALK | 0.50 | 12 |
+| endoxifen | ESR1 | 0.60 | 30 |
+| GCN2-IN-7 | EIF2AK4 | 0.60 | 30 |
+
+Under the pair-level correlation-aware null (a Gaussian copula fitted to
+the measured cross-context percentile correlation, rho = 0.44), the three
+strongest pairs calibrate at STM2457 → METTL3 p = 0.0036, STC-15 → METTL3
+p = 0.0080, and MSC1094308 → DOT1L p = 0.015. `ensemble_rescoring_panel.csv`
+is the per-pair table behind these numbers: all 43 scored control pairs
+with the ens_min and full-gene cosine best percentiles, the fraction of
+cells in the top 20%, and the 11 consistent pairs flagged.
 
 ## The hub guardrail
 
 The strongest convergence in the comparison is not specific biology: several
 hundred KO targets (e.g., XRN1, UPF1/2, SMG7, SNRPE, EIF3D; RNA homeostasis
-and stress response) are each mimicked by 1–8% of the entire library across
+and stress response) are each mimicked by 1-8% of the entire library across
 every context. Many compounds, across unrelated chemotypes, push cells into
 a generic RNA/stress state. A hit on such a target indicates a broadly
 cytotoxic or RNA-stress phenotype rather than a specific target hypothesis.
 Every target carries a `hub_flag` (`hub_generic_stress` / `frequent` /
 `specific`) in `target_hubness.csv` and in the pair tables; the ranked
-`top100_phenomimics.csv` excludes hub targets. The flags function as
-filters rather than deletions; a genuinely RNA-targeting drug would also
-hit them.
+`top100_phenomimics.csv` excludes `hub_generic_stress` targets, while
+targets flagged `frequent` remain in the list (98 of 101 rows). The flags
+function as filters rather than deletions; a genuinely RNA-targeting drug
+would also hit them.
 
 ## SAR structure of the hits
 
 A single compound matching a target is an isolated hit; several related
 compounds matching the same target is a structure-activity relationship.
-Families are built per target from the OBOC recipes (bb0–bb4: family-mates
+Families are built per target from the OBOC recipes (bb0-bb4: family-mates
 match after dropping any one diversity position). The ranked table
 (`top100_phenomimics.csv`, 101 hypotheses from 31 families covering 26
 targets) keeps only families that pass every guardrail in this annex:
@@ -133,27 +168,28 @@ structural singletons; treat those as a watch-list.
 ## The reversal track
 
 `antimimic_pairs.parquet` holds the mirror image: compounds whose signature
-*reverses* a KO signature (z ≤ −5), i.e. rescue/antagonist hypotheses. Same
+*reverses* a KO signature (z ≤ -5), i.e. rescue/antagonist hypotheses. Same
 scoring, same caveats, opposite sign.
 
 ## Caveats (read before acting on any row)
 
 - CRISPR KO ≠ pharmacological inhibition (complete loss vs partial, no
-  off-targets, no exposure/PK). Hits are hypothesis-grade.
-- Gene-panel mismatch: some datasets measure ~8–9k genes; only shared genes
+  off-targets, no exposure/PK).
+- Gene-panel mismatch: some datasets measure ~8-9k genes; only shared genes
   enter each pair's score.
-- `kd_flag_weak` marks targets whose own-transcript depletion was marginal
-  — their KO signatures may not reflect the intended gene.
+- `kd_flag_weak` marks targets whose own-transcript depletion was marginal.
+  Their KO signatures may not reflect the intended gene.
 - Check `hub_flag` before treating any hit as specific.
 
 ## Files
 
 | file | rows | what it is |
 |---|---:|---|
-| `phenomimic_pairs.parquet` | 426,461 | All mimicry pairs at tier C or better: `public_compound_id`, `target_gene`, `n_contexts`, `contexts`, `best_z`, `mean_z`, `best_rank`, `mean_rank`, `is_named_control`, `kd_delta_median`, `kd_flag_weak`, `tier`, recipe columns `bb0`–`bb4`, `hub_flag`. |
-| `antimimic_pairs.parquet` | 561,355 | The reversal track (z ≤ −5): rescue/antagonist hypotheses, same column convention. |
+| `phenomimic_pairs.parquet` | 426,461 | All mimicry pairs at tier C or better: `public_compound_id`, `target_gene`, `n_contexts`, `contexts`, `best_z`, `mean_z`, `best_rank`, `mean_rank`, `is_named_control`, `kd_delta_median`, `kd_flag_weak`, `tier`, recipe columns `bb0`-`bb4`, `hub_flag`. |
+| `antimimic_pairs.parquet` | 561,355 | The reversal track (z ≤ -5): rescue/antagonist hypotheses, same column convention. |
 | `showcase_hits.csv` | 2,000 | Shortlist with exact per-dataset evidence: `n_datasets_scored`, `n_datasets_top5pct`, `n_datasets_top1pct`, `best_percentile`, `best_dataset_exact`, plus consensus columns. 530 pairs recover in ≥ 3 datasets at ≤ 5th percentile. |
-| `top100_phenomimics.csv` | 101 | The ranked, lab-facing list: SAR families passing every guardrail in this annex (non-hub target with validated knockdown, non-promiscuous compounds, 3–200 recipe-mates), ranked by CRISPR-match strength, family size, and cross-context replication. `family_id`, `target_gene`, `family_size`, `family_max_z`, `family_evidence`, `public_compound_id`, `best_z`, `tier`, `contexts`, `n_contexts`, `total_family_size`, `hub_flag`, `kd_delta_median`, `composite_score`, `is_family_representative`. |
+| `top100_phenomimics.csv` | 101 | The ranked, lab-facing list: SAR families passing every guardrail in this annex (non-hub target with validated knockdown, non-promiscuous compounds, 3-200 recipe-mates), ranked by CRISPR-match strength, family size, and cross-context replication. `family_id`, `target_gene`, `family_size`, `family_max_z`, `family_evidence`, `public_compound_id`, `best_z`, `tier`, `contexts`, `n_contexts`, `total_family_size`, `hub_flag`, `kd_delta_median`, `composite_score`, `is_family_representative`. |
 | `top100_family_summary.csv` | 31 | Per-family rollup of the top 100. |
 | `validation_empirical_p.csv` | 2,109 | Per (control × context × dataset × target) empirical p-values: `p_emp` against a 1,000-draw random-target null, `p_emp_hub` against a 1,000-draw hub-matched null, `p_emp_20draw` (legacy 20-draw null, first 1,546 rows), plus `control_name`, `target_gene`, `cosine`, `rank_mimic`, `percentile`. The calibration reference for any single-claim review. |
+| `ensemble_rescoring_panel.csv` | 43 | Per-pair ensemble rescoring of the 43 scored control pairs: `public_compound_id`, `compound_name`, `target_gene`, `ens_min_best_percentile`, `cosine_best_percentile` (full-gene cosine channel, for contrast), `frac_cells_top20`, `n_cells`, `consistent_pair` (frac_cells_top20 ≥ 0.5). Sorted by `ens_min_best_percentile`. |
 | `target_hubness.csv` | 18,789 | Per-target guardrail: `n_compounds_hit`, `hub_frac`, `hub_flag`. |

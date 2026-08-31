@@ -1,8 +1,8 @@
 {
   "registry": "terminology",
   "package": "Z-Screen Program Package",
-  "version": "1.2.0",
-  "created": "2026-08-18",
+  "version": "1.5.0",
+  "created": "2026-08-31",
   "note": "Every abbreviation and technical term used in the package docs, defined at the register it is used. Internal method/version identifiers use semantic names only (e.g. shared_program_basis_v1, context_token_trunk, device_centered_target).",
   "terms": [
     {"term": "context", "definition": "One library x cell-line screen, e.g. zel024_hek293. The 8 predictive contexts are the package's unit of measurement organization."},
@@ -102,7 +102,7 @@
     {"term": "METTL3 / m6A", "definition": "METTL3 is the m6A (N6-methyladenosine) RNA methyltransferase; its inhibitors phenocopy its knockout (ZSH-3760)."},
     {"term": "UPR / ER stress", "definition": "Unfolded protein response / endoplasmic-reticulum stress program (HSPA5, DDIT3, ...); the sharp SAR family ZSH-3757."},
     {"term": "CRISPR KO links", "definition": "Resemblances between compound signatures in this package and CRISPR knockout signatures across 43 signature sets from 10 perturb-seq datasets, calibrated against an empirical null; hypothesis-grade. See annex_phenomimicry/."},
-    {"term": "external concordance", "definition": "Agreement with external atlases (CRISPR knockout panels, legacy connectivity resources); CRISPR concordance is calibrated in annex_phenomimicry/; the legacy LINCS agreement does not reproduce here."},
+    {"term": "external concordance", "definition": "Agreement with external atlases (CRISPR knockout panels, legacy connectivity resources); CRISPR concordance is calibrated in annex_phenomimicry/."},
     {"term": "NDA path", "definition": "The building-block-to-structure mapping and structure-level models are available under NDA; contact the Zafrens team."},
     {"term": "program atlas", "definition": "annex_hypotheses/program_atlas.csv: the 26 program groups organizing the screens, with themes, drivers, and anchors."},
     {"term": "hypothesis ledger", "definition": "annex_hypotheses/hypothesis_ledger_full.csv: the complete 1,027-row mining ledger, triage-grade."},

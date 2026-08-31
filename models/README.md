@@ -1,30 +1,30 @@
-# Reference model — context-token trunk (evaluation grade)
+# Reference model: context-token trunk
 
 This directory ships a **reference model, evaluation grade**: three seeds of a
 shared context-token transformer trunk that predicts the 32-dimensional
 program-usage vector of a compound from its building-block recipe
-(`bb0`–`bb4` public BB IDs) plus a context (library + cell line). It is the
+(`bb0`-`bb4` public BB IDs) plus a context (library + cell line). It is the
 same model family reported in `core/benchmark/` (`context_token_trunk` rows).
 
 It is provided so collaborators can (a) reproduce the reference scores in the
 benchmark tables, (b) generate program-usage predictions for new recipes in
 the public BB grammar, and (c) verify their environment against fixed golden
-predictions. It is a reference implementation of evaluation grade.
+predictions.
 
 ## Files
 
-- `context_token_trunk_reference_eval_v1_seed0.pt` / `_seed1.pt` / `_seed2.pt`
-  — the three checkpoints. Each is a plain dict: `state_dict`, `architecture`,
+- `context_token_trunk_reference_eval_v1_seed0.pt` / `_seed1.pt` / `_seed2.pt`:
+  the three checkpoints. Each is a plain dict: `state_dict`, `architecture`,
   `training`, `vocabulary` (per-slot BB-ID vocabularies, library/cell-line
   tables, context tokens), `usage_scales` (per-context standardization), and
   `provenance`. Loads with `torch.load(..., weights_only=True)`.
-- `model_def.py` — self-contained architecture definition (PyTorch only; no
+- `model_def.py`: self-contained architecture definition (PyTorch only; no
   imports from anywhere else in this package or elsewhere).
-- `predict.py` — CPU inference and golden-prediction self-check.
-- `bb_embedding_table.parquet` — the 128-dimensional pretrained chemistry
+- `predict.py`: CPU inference and golden-prediction self-check.
+- `bb_embedding_table.parquet`: the 128-dimensional pretrained chemistry
   embedding for each public BB ID (629 rows; public IDs only, no structures).
   This is the model's input featurization for building blocks.
-- `golden_predictions.json` — 20 fixed public recipes (held-out fold-0
+- `golden_predictions.json`: 20 fixed public recipes (held-out fold-0
   compounds, 5 contexts) with seed-0 predictions, for environment
   verification.
 
@@ -35,8 +35,8 @@ All three checkpoints were trained with **fold 0 held out**
 `core/splits/fold_assignments.parquet`). Fold-0 compounds were never seen in
 training or in early stopping. The shared program basis the usages are
 defined against (`core/basis/shared_basis_k32.npy`, pinned in
-`core/basis/basis_registry.json`) was likewise fit on folds 1–4 only.
-**Fold 0 is the intended test bed: train on folds 1–4, evaluate on fold 0.**
+`core/basis/basis_registry.json`) was likewise fit on folds 1-4 only.
+**Fold 0 is the intended test bed: train on folds 1-4, evaluate on fold 0.**
 
 ## Quick start
 
@@ -49,9 +49,9 @@ python predict.py --context zel028_a549 \
 
 `predict.py` prints both output spaces:
 
-- `usage_z_scored` — the raw head output (per-context z-scored space the
+- `usage_z_scored`: the raw head output (per-context z-scored space the
   model was trained against);
-- `usage` — the same vector mapped back to usage units with the per-context
+- `usage`: the same vector mapped back to usage units with the per-context
   standardization stored in the checkpoint. This is the scale comparable to
   `core/usages/`.
 
@@ -64,7 +64,7 @@ shipped surfaces.
 ## Provenance
 
 The original evaluation campaign ran this exact registered configuration on
-2026-08-13/14 but did not persist model checkpoints — only predictions and
+2026-08-13/14 but did not persist model checkpoints, only predictions and
 metrics. **These weights are a 2026-08-15 retrain of the identical
 registered configuration and code** (original code sha256
 `89e4059f911cfb4c60450e3b790c55d091a4b265e8dfae3b464752fa1c1d797a`; same
@@ -82,9 +82,9 @@ original run's preserved held-out (fold-0 test) predictions:
   other, so the retrain is a faithful, reproducible execution of the
   registered configuration; the original run was the outlier. Population
   metrics still agree closely: program-space Pearson deltas per context are
-  −0.0058 to +0.0016 (the never-trained transfer context zel031_h1650:
-  +0.021, high-variance by construction), decoded mcPearson deltas −0.0016
-  to +0.0028, and per-compound prediction correlation 0.84–0.93 vs. the
+  -0.0058 to +0.0016 (the never-trained transfer context zel031_h1650:
+  +0.021, high-variance by construction), decoded mcPearson deltas -0.0016
+  to +0.0028, and per-compound prediction correlation 0.84-0.93 vs. the
   original run. The retrained seed 2 scores marginally better on its
   validation criterion than the original did.
 

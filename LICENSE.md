@@ -24,10 +24,10 @@ the Apache-2.0 text.
 
 ## Data and model weights
 
-All other contents of this package — measured surfaces and program
+All other contents of this package (measured surfaces and program
 usages, recipes, the pinned basis, benchmark tables, imaging and
 same-well annexes, hypothesis tables, model checkpoints, and the
-building-block embedding table — are licensed under Creative
+building-block embedding table) are licensed under Creative
 Commons Attribution 4.0 International (`LICENSES/CC-BY-4.0.txt`).
 
 You may copy, redistribute, and adapt that material, including for
@@ -45,4 +45,4 @@ Nothing in this package is licensed for regulatory use.
 
 ## Contact
 
-Zafrens, Inc. — hello@zafrens.com
+Zafrens, Inc.: hello@zafrens.com
