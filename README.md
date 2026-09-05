@@ -10,7 +10,7 @@ tags:
 
 # Z-Screen Program Package
 
-Version 1.5.0, 2026-08-31. A standalone screening-data release from
+Version 1.5.1, 2026-09-04. A standalone screening-data release from
 the Z-Screen pilot combinatorial-chemistry screens. The data layer
 is per-compound 32-dimensional program-usage vectors and harmonized
 6,000-gene response surfaces across 8 library × cell-line contexts,
@@ -23,7 +23,7 @@ for usage prediction ships with its evaluation scores.
 > **New in v1.5.0 (2026-08-31).** A new **`annex_clusters/`** ships the
 > unsupervised census: 1,007 analog-family clusters recovered from the
 > usage vectors across the 8 contexts, every one at q <= 0.01 against
-> 200 size-matched nulls (median coherence z = 4.8), 956 of 1,007
+> 200 size-matched nulls (median coherence z = 4.8), 855 of 1,007
 > carrying a significant Hallmark/KEGG/Reactome pathway at q < 0.05
 > (`cluster_census.csv` with per-cluster coherence and pathway
 > annotations). The phenomimicry annex adds an ensemble rescoring

@@ -95,7 +95,7 @@ across the eight contexts (3-137 members, median 4), each a fixed
 core at one recipe position with varied substituents at another
 (`annex_clusters/cluster_census.csv`). Every cluster is coherent at
 q <= 0.01 against 200 size-matched
-random compound sets (median coherence z = 4.8), and 956 of the
+random compound sets (median coherence z = 4.8), and 855 of the
 1,007 carry at least one significant Hallmark/KEGG/Reactome pathway
 on their gene centroids (q < 0.05). A bonsai tree built on the
 32-dimensional cluster centroids preserves pairwise distances at

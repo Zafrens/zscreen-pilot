@@ -25,7 +25,7 @@ median coherence z is 4.8.
 Pathway annotation starts from each cluster's 6,000-gene centroid
 signature. The top up- and down-driver genes are tested by Fisher
 enrichment with Benjamini-Hochberg FDR against 1,639 gene sets from
-MSigDB Hallmark 2020, KEGG 2021 Human, and Reactome 2022. 956 of the
+MSigDB Hallmark 2020, KEGG 2021 Human, and Reactome 2022. 855 of the
 1,007 clusters have at least one significant set at q < 0.05.
 
 ## What the clusters are about

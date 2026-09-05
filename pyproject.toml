@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zscreen-program-package"
-version = "1.5.0"
+version = "1.5.1"
 description = "Shared program layer of the Z-Screen screens: usages, harmonized surfaces, pinned basis, reference model, and annexes"
 readme = "README.md"
 requires-python = ">=3.11"

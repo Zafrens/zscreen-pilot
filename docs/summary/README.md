@@ -1,4 +1,4 @@
-# Z-Screen pilot: platform summary. Package v1.5.0, 2026-08-31.
+# Z-Screen pilot: platform summary. Package v1.5.1, 2026-09-04.
 
 **A breadth-first combinatorial-chemistry pilot: 190,699 compound-context
 transcriptional profiles from 162,914 unique recipes across 8 library x
@@ -56,7 +56,7 @@ prioritization and experimental design.
 - **Biological structure recovers without labels.** An unsupervised census
   of the 32-program usage space finds 1,007 analog-family clusters across
   the eight contexts, each coherent at q <= 0.01 against 200 size-matched
-  random compound sets (median coherence z = 4.8); 956 of the 1,007 carry
+  random compound sets (median coherence z = 4.8); 855 of the 1,007 carry
   at least one significant Hallmark/KEGG/Reactome pathway on their gene
   centroids at q < 0.05. A bonsai tree on the 32-dimensional cluster
   centroids preserves pairwise distances at median Pearson R 0.87, against

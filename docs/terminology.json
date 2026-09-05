@@ -1,7 +1,7 @@
 {
   "registry": "terminology",
   "package": "Z-Screen Program Package",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "created": "2026-08-31",
   "note": "Every abbreviation and technical term used in the package docs, defined at the register it is used. Internal method/version identifiers use semantic names only (e.g. shared_program_basis_v1, context_token_trunk, device_centered_target).",
   "terms": [
