@@ -1,10 +1,9 @@
 # Reproduction
 
-Worked recipes for the common tasks. Everything below runs with
+Worked recipes for the common tasks. Sections 1–5 run with
 `numpy` + `pandas` + `pyarrow` except §3, which needs the optional `model`
 extra (PyTorch, CPU is sufficient). All paths are relative to the package
-root. The four notebooks in `examples/` execute these same flows end to
-end.
+root. Notebooks 01–04 cover these pilot flows. [Data access](ANALYSIS_ACCESS.md) describes optional upstream inputs.
 
 ## 1. Load usages for a context
 
@@ -30,26 +29,29 @@ usages, compounds = data.load_usages("zel039_aec7")
 basis = data.load_basis(k=32)
 ```
 
-## 2. Reproduce a benchmark number
+## 2. Cross-check the benchmark null scale
 
 `core/benchmark/program_space_primary.csv` reports, per context, the mean
 per-program Pearson of predicted vs measured usages with a permutation
 null (`null_mean`, `null_sd`) and the resulting z. The null scale is
 recomputable from the shipped usages alone: shuffle the compound pairing,
-compute per-program Pearson across compounds, average over the 32
-programs.
+compute per-program Pearson across compounds and pool the individual program correlations over all draws. Averaging within each draw produces a different, narrower null and must not be substituted.
 
 ```python
 import numpy as np, pandas as pd
 
 CTX = "zel039_aec7"
 u = np.load(f"core/usages/usages_{CTX}.npy").astype(np.float64)
+ids = pd.read_parquet(f"core/usages/usages_{CTX}_compounds.parquet")
+folds = pd.read_parquet("core/splits/fold_assignments.parquet")
+fold0_ids = set(folds.query("context == @CTX and fold == 0").public_compound_id)
+u = u[ids.public_compound_id.isin(fold0_ids).to_numpy()]
 rng = np.random.default_rng(0)
 stats = []
 for _ in range(200):
     perm = rng.permutation(len(u))
     r = [np.corrcoef(u[:, j], u[perm, j])[0, 1] for j in range(u.shape[1])]
-    stats.append(np.mean(r))
+    stats.extend(r)
 print(np.mean(stats), np.std(stats))   # compare with null_mean / null_sd
 ref = pd.read_csv("core/benchmark/program_space_primary.csv")
 row = ref.query("arm=='context_token_trunk' and k==32 and "
@@ -68,11 +70,10 @@ runs this and also verifies the fold rule
 ## 3. Run the reference model and check golden predictions
 
 ```bash
-pip install -e ".[model]"          # adds torch (CPU is sufficient)
-cd models
-python predict.py --check-golden   # reproduces golden_predictions.json (tolerance 2e-6)
-python predict.py --context zel028_a549 \
-    --bb1 BB_0510191033 --bb2 BB_3460866978 --bb3 BB_1895570180 --bb4 BB_8135509566
+python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+python -m pip install -e ".[model]"
+python models/predict.py --check-golden   # reproduces golden_predictions.json (tolerance 2e-6)
+python models/predict.py --context zel028_a549 --bb1 BB_0510191033 --bb2 BB_3460866978 --bb3 BB_1895570180 --bb4 BB_8135509566
 ```
 
 `predict.py` prints two spaces: `usage_z_scored` (the raw head output, the
@@ -123,4 +124,8 @@ rows (95.2% of the table) are raw material for re-ranking with your own
 priors. Read `annex_hypotheses/README.md` and `HOW_TO_READ.md` alongside for
 the weak-null rule and tier-matched null conventions.
 
+## 6. Inspect selected annex evidence
 
+The [annex index](ANNEX_INDEX.md) identifies the included measurements, processed results and their interpretation limits. The [original atlas](../atlas/original_clusters/README.md) provides its member/centroid verifier. The [gallery](../gallery/README.md) documents rebuilding its images from the included selected crops and public selection inputs. The [case-study tables](../annex_case_studies/DATA_GUIDE.md) and [measurement-design evidence](../annex_measurement_design/README.md) supply figure values, definitions and methods.
+
+These operations inspect or use distributed objects. Rebuilding source-count profiles, genetic references, full correspondence scores requires the raw/reference inputs stated in the methods. The 6,000-gene core panel is not a substitute for the full-axis scoring inputs. See [methods and access](ANALYSIS_ACCESS.md).

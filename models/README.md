@@ -1,117 +1,113 @@
 # Reference model: context-token trunk
 
-This directory ships a **reference model, evaluation grade**: three seeds of a
-shared context-token transformer trunk that predicts the 32-dimensional
-program-usage vector of a compound from its building-block recipe
-(`bb0`-`bb4` public BB IDs) plus a context (library + cell line). It is the
-same model family reported in `core/benchmark/` (`context_token_trunk` rows).
-
-It is provided so collaborators can (a) reproduce the reference scores in the
-benchmark tables, (b) generate program-usage predictions for new recipes in
-the public BB grammar, and (c) verify their environment against fixed golden
-predictions.
-
-## Files
-
-- `context_token_trunk_reference_eval_v1_seed0.pt` / `_seed1.pt` / `_seed2.pt`:
-  the three checkpoints. Each is a plain dict: `state_dict`, `architecture`,
-  `training`, `vocabulary` (per-slot BB-ID vocabularies, library/cell-line
-  tables, context tokens), `usage_scales` (per-context standardization), and
-  `provenance`. Loads with `torch.load(..., weights_only=True)`.
-- `model_def.py`: self-contained architecture definition (PyTorch only; no
-  imports from anywhere else in this package or elsewhere).
-- `predict.py`: CPU inference and golden-prediction self-check.
-- `bb_embedding_table.parquet`: the 128-dimensional pretrained chemistry
-  embedding for each public BB ID (629 rows; public IDs only, no structures).
-  This is the model's input featurization for building blocks.
-- `golden_predictions.json`: 20 fixed public recipes (held-out fold-0
-  compounds, 5 contexts) with seed-0 predictions, for environment
-  verification.
-
-## Fold-0 convention (read before benchmarking)
-
-All three checkpoints were trained with **fold 0 held out**
-(fold = SHA256(public_compound_id) mod 5; see
-`core/splits/fold_assignments.parquet`). Fold-0 compounds were never seen in
-training or in early stopping. The shared program basis the usages are
-defined against (`core/basis/shared_basis_k32.npy`, pinned in
-`core/basis/basis_registry.json`) was likewise fit on folds 1-4 only.
-**Fold 0 is the intended test bed: train on folds 1-4, evaluate on fold 0.**
+The reference model predicts a compound's 32-dimensional program-usage vector
+from its building-block recipe (`bb0`–`bb4` public BB IDs) and cellular context
+(library and cell line). Three seed checkpoints support program-space inference
+and comparison with the `context_token_trunk` rows in `core/benchmark/`.
 
 ## Quick start
 
+Run from the package root with Python 3.11.14 for the pinned CPU environment:
+
 ```bash
-pip install torch pandas pyarrow numpy   # CPU torch is sufficient
-python predict.py --check-golden          # reproduces golden_predictions.json
-python predict.py --context zel028_a549 \
+python -m pip install numpy==2.4.6 pandas==2.3.3 pyarrow==24.0.0
+python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+python models/predict.py --check-golden
+python models/predict.py --context zel028_a549 \
     --bb1 BB_0510191033 --bb2 BB_3460866978 --bb3 BB_1895570180 --bb4 BB_8135509566
 ```
 
-`predict.py` prints both output spaces:
+The package-root `environment.lock` also specifies the notebook and analysis
+dependencies. CPU inference is sufficient.
 
-- `usage_z_scored`: the raw head output (per-context z-scored space the
-  model was trained against);
-- `usage`: the same vector mapped back to usage units with the per-context
-  standardization stored in the checkpoint. This is the scale comparable to
-  `core/usages/`.
+The golden check evaluates 20 fixed recipes with seed 0 and an absolute tolerance
+of `2e-6`. It temporarily sets PyTorch's CPU computation thread count to 12,
+matching the numerical reference configuration, and restores the caller's
+setting even on errors. **Twelve physical cores are not required**: the operating
+system can schedule these threads across fewer cores. Ordinary predictions
+retain the caller's thread setting. Since the thread count is process-wide,
+run the diagnostic without concurrent inference in the same Python process.
 
-**Program space is the model's output interface.** The per-context
-gene-space decoders used in the original evaluation are not included; to map
-usages to gene space, use the pinned shared basis
-(`core/basis/shared_basis_k32.npy`) or train your own decoder against the
-shipped surfaces.
+The pinned environment passes the check when started with 1, 4 or 12 OMP/MKL
+threads, with maximum absolute error below `5e-7`. Floating-point reduction order
+can otherwise cause small thread-dependent differences. The strict tolerance
+has not been certified for other PyTorch builds or CPU architectures.
 
-## Provenance
+## Supported contexts
 
-The original evaluation campaign ran this exact registered configuration on
-2026-08-13/14 but did not persist model checkpoints, only predictions and
-metrics. **These weights are a 2026-08-15 retrain of the identical
-registered configuration and code** (original code sha256
-`89e4059f911cfb4c60450e3b790c55d091a4b265e8dfae3b464752fa1c1d797a`; same
-data snapshot, same training image, torch 2.5.1, same seeds), with
-checkpoint saving as the only change. Each seed was verified against the
-original run's preserved held-out (fold-0 test) predictions:
+The public inference interface supports these eight trained contexts:
 
-- **Seeds 0 and 1** reproduce the original runs exactly: per-context
-  program-space Pearson and decoded mcPearson deltas are 0.0, and
-  per-compound prediction correlation is 1.000000 (bit-identical
-  predictions on GPU).
-- **Seed 2** diverged: the *original* seed-2 run took a one-off
-  GPU-nondeterministic trajectory (early stop at epoch 33 vs. 39 in the
-  retrain). Two independent retrains of seed 2 are bit-identical to each
-  other, so the retrain is a faithful, reproducible execution of the
-  registered configuration; the original run was the outlier. Population
-  metrics still agree closely: program-space Pearson deltas per context are
-  -0.0058 to +0.0016 (the never-trained transfer context zel031_h1650:
-  +0.021, high-variance by construction), decoded mcPearson deltas -0.0016
-  to +0.0028, and per-compound prediction correlation 0.84-0.93 vs. the
-  original run. The retrained seed 2 scores marginally better on its
-  validation criterion than the original did.
+`zel024_h1650`, `zel024_hek293`, `zel028_a549`, `zel028_h1650`,
+`zel028_hek293`, `zel031_a549`, `zel031_thp1`, and `zel039_aec7`.
 
-Training architecture summary: 8 tokens (classification + library +
-cell-line + 5 building-block slots), d_model 128, 4 heads, 2 layers,
-feed-forward 512, dropout 0.1, single shared 32-dim head, 473,120
-parameters. Trained jointly across the 8 predictive contexts with
-context-balanced batches; identity-channel dropout 0.30; AdamW lr 1e-3,
-wd 0.01, 3-epoch warmup + cosine decay, early stop patience 8.
+`available_contexts(checkpoint)` derives the supported list from the checkpoint's
+training metadata, context-token vocabulary and valid usage normalization.
+The transfer-only entry `zel031_h1650` is not a supported inference context.
+Unsupported contexts produce a CLI error with available choices (exit code 2),
+or a `ValueError` from `predict_program_usage(...)` before inference.
 
-## Scope of the reference model
+## Inputs and outputs
 
-- **zel031_a549 exception.** On this context the trunk trails the
-  per-context expert model by ~9% relative (decoded gene-space mcPearson
-  0.0434 vs 0.0479, compound-disjoint split; see
-  `core/benchmark/per_context_comparison_k32.csv`). In the other seven
-  contexts the trunk improves in six and is flat in zel024_h1650 (~3%
-  relative deficit, inside the evaluation tolerance). Treat zel031_a549
-  trunk predictions accordingly.
-- **Vocabulary coverage.** Only BB IDs seen in the training folds are
-  representable as learned identity embeddings. Unseen public BB IDs are
-  still featurized (chemistry embedding) but their identity channel maps to
-  a shared "unknown" row; predictions for recipes heavy in unseen BBs are
-  correspondingly less specific. Absent slots (fewer than 5 blocks) are
-  masked and are fully supported.
-- **Output space.** Predictions are program usages against the pinned
-  shared basis v1; they are only meaningful against that basis (see
-  `core/basis/basis_registry.json`).
-- **Scale.** zel028 contexts support pooled/level-level reads only; do not
-  make per-compound claims there (see `docs/SCIENTIFIC_OVERVIEW.md`).
+Each building block is represented by a 128-dimensional chemistry embedding and
+a learned identity embedding. The embedding table covers 629 public BB IDs.
+IDs absent from training folds use a shared unknown identity embedding while
+retaining their chemistry features. Missing recipe slots are masked. An ID
+without a chemistry embedding cannot be used by this interface.
+
+`predict.py` returns two program-space vectors:
+
+- `usage_z_scored`: the head output in per-context standardized units.
+- `usage`: `usage_z_scored * sd + mu`, using the checkpoint's context-specific
+  normalization; this scale is comparable to the corresponding `core/usages/`
+  matrices.
+
+The output interface is **program space**. The evaluation's per-context
+gene-space decoders are not included. The shared basis
+`core/basis/shared_basis_k32.npy` can map usages into its 6,000-gene representation;
+this mapping is distinct from reproducing the separately decoded benchmark.
+
+## Training and evaluation
+
+All checkpoints hold out **fold 0** using
+`SHA256(public_compound_id) mod 5`; see `core/splits/fold_assignments.parquet`.
+Fold-0 compounds participate in neither training nor early stopping. The shared
+program basis is also fit on folds 1–4 only. Evaluate on fold 0 when comparing
+against the supplied reference.
+
+The transformer contains eight tokens (classification, library, cell line and
+five building-block slots), model width 128, four attention heads, two layers,
+feed-forward width 512, dropout 0.1 and one 32-dimensional output head: 473,120
+parameters. Training uses context-balanced batches across the eight supported
+contexts, identity dropout 0.30, AdamW with learning rate `1e-3` and weight decay
+0.01, three warmup epochs followed by cosine decay, and early-stopping patience 8.
+
+### Relation to the benchmark tables
+
+The supplied seed-0 and seed-1 checkpoints reproduce their corresponding
+benchmark evaluation predictions. Seed 2 is a repeated training execution of
+the same configuration whose GPU training trajectory differs from the seed-2
+evaluation underlying the aggregate benchmark tables. Across supported contexts,
+its program-space Pearson differences are −0.0058 to +0.0016 and decoded
+mcPearson differences are −0.0016 to +0.0028; per-compound prediction correlations
+are 0.84–0.93. Treat the three supplied checkpoints as a reference implementation,
+with this seed-2 discrepancy when comparing exact aggregate benchmark numbers.
+
+## Interpretation
+
+- In `zel031_a549`, the trunk trails the per-context expert by about 9% relative
+  in decoded mcPearson (0.0434 versus 0.0479); see
+  `core/benchmark/per_context_comparison_k32.csv`.
+- Predictions are meaningful against the pinned shared basis and the specified
+  context. Check `core/basis/basis_registry.json` for basis identity.
+- `zel028` supports pooled and building-block-level interpretation. Per-compound
+  claims are not supported there; see `docs/SCIENTIFIC_OVERVIEW.md`.
+
+## Files
+
+- `context_token_trunk_reference_eval_v1_seed0.pt`, `_seed1.pt`, `_seed2.pt`:
+  checkpoint dictionaries with parameters, architecture, training metadata,
+  vocabularies and usage normalization; loaded with `weights_only=True`.
+- `model_def.py`: self-contained PyTorch architecture.
+- `predict.py`: CPU inference and golden check.
+- `bb_embedding_table.parquet`: public BB IDs and chemistry embeddings.
+- `golden_predictions.json`: fixed held-out recipes and numerical reference outputs.

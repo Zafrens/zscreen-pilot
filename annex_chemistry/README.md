@@ -1,14 +1,14 @@
 # Chemistry Annex
 
-This annex collects the chemistry-facing results of the Z-Screen program
-package: two decision-grade findings about chemical structure as a
-representation, and three public-identifier structure-activity relationship
-(SAR) tables.
+Use this annex to inspect recurring chemical components, related recipe
+series and local changes in cellular response. It contains two completed
+structure-model evaluations and three tables of response-associated chemical
+families, all using public identifiers.
 
 Chemical structures are not included. Building blocks are identified
 only by public, opaque identifiers of the form `BB_##########`. The
-building-block→structure mapping, together with the structure-level
-models behind the two findings below, is available under NDA.
+underlying structure maps and structure-model inputs are outside this
+public download. For access enquiries, contact hello@zafrens.com.
 
 ## Background vocabulary
 
@@ -21,8 +21,8 @@ models behind the two findings below, is available under NDA.
 - **Programs and usages.** Measured gene-expression responses are summarized
   as usages of 32 shared transcriptional programs (see the core package).
   Most numbers below are correlations or similarities computed in that
-  32-dimensional program space, which is the most statistically reliable
-  layer of the dataset.
+  32-dimensional program space. These coordinates derive from processed
+  response surfaces; some contexts include substantial recipe-model pooling.
 - **Coherence.** Mean pairwise cosine similarity of the measured program
   profiles of a set of compounds. High coherence = the set moves biology in
   a consistent direction.
@@ -34,33 +34,32 @@ models behind the two findings below, is available under NDA.
 
 ## The two distilled findings
 
-1. **Structure-based models generalize to never-before-synthesized building
-   blocks, at parity with identity-based models.** On building blocks held
-   out before synthesis, the identity-free structure model predicts the 32
+1. **Structure features represent building blocks withheld from model fitting.**
+   In the saved held-out-building-block evaluation, the structure model predicts the 32
    measured programs at r = 0.339 ± 0.020 in `zel024_hek293` (at parity
    with the architecture-matched identity model there, and within 0.018 of
-   it in the other contexts), while the previous additive learned-embedding
-   floor manages 0.182, and pure identity models cannot represent the held
-   out blocks at all. Structure is the right representation for novel
-   chemistry. Evidence: `novel_bb_generalization.csv`.
+   it in the other contexts), while the additive learned-embedding
+   baseline reaches 0.182. Structure features give the model a representation
+   for components absent from training; this is a retrospective model
+   evaluation, not a prospective synthesis result. Evidence: `novel_bb_generalization.csv`.
 
-2. **Structure-based attribution is validated against measurement.**
+2. **Model component effects agree with the measurement-derived reference.**
    Knocking out one building block at a time through the structure model
    recovers the measurement-side effect of that block at median Spearman
    0.89-0.94 (z = 13.8-19.2 against matched nulls; negative controls near
    zero where measured; see the table note), and
    knocking out the block's constituent parts sums to the whole-block
-   knockout at 0.97-0.99. Attribution through the structure layer is
-   therefore trustworthy down to the single-building-block level. Evidence:
+   knockout at 0.97-0.99. These comparisons support building-block attribution in this
+   model and response representation. Removing a feature from the model is
+   an in-silico operation, not a laboratory component-deletion experiment. Evidence:
    `attribution_certificate.csv`.
 
 ## The tables
 
 ### `novel_bb_generalization.csv`: 8 rows, one per context
 
-The decision-grade generalization result. Every model was evaluated on
-building blocks the model had never seen in training (held out before
-synthesis). Columns:
+Completed generalization results for building blocks withheld from model
+training. Columns:
 
 - `structure_readout_model_r_mean` / `_sd`: mean ± sd Pearson r (predicted
   vs measured program usages) of the structure-input readout model across 5
@@ -76,7 +75,7 @@ synthesis). Columns:
   trunk model for orientation, and `structure_minus_trunk_r_mean` the gap
   to it.
 - `structure_ridge_r_mean`: a simple linear (ridge) model on structure
-  features, compared against `additive_embedding_floor_r_mean`, the previous
+  features, compared against `additive_embedding_floor_r_mean`, the
   additive learned-embedding baseline. The structure ridge beats that floor
   in 7 of 8 contexts with confidence intervals excluding zero
   (`structure_ridge_minus_floor_r_mean`, `_ci95`, `_frac_folds_positive`).
@@ -166,11 +165,13 @@ for series-level SAR. Columns:
   members versus the library base rate, so depth confounds are visible
   alongside every effect.
 
-**Positive control:** the known heat-shock chemotype series anchored by
+**Phenotype example:** the heat-shock-associated series anchored by
 `BB_2085420374` (`bb0=BB_2085420374 & bb1=BB_5422857344`) lands at
 `composite_rank` 1 in `zel039_aec7`, with heat-shock genes (HSP90AA1,
 HSPA1A, HSPD1, DNAJB1, HSPB1, …) as its top up-drivers. The ranking
-recovers a known mechanism without being told about it.
+recovers a recognizable response pattern. The
+`is_positive_control` field is a classification flag; it does not disclose
+the building block’s structure or establish a molecular mechanism.
 
 ### `bb_effect_rankings.csv`: 431 rows (all three SAR contexts)
 
@@ -206,6 +207,8 @@ measured across all compounds carrying it. Columns:
   null percentiles together.
 - These tables enumerate candidates for medicinal-chemistry follow-up. They
   are hypothesis-generating, not confirmatory.
-- Structures, structure files, and any fine-grained structure-derived
-  tables are deliberately absent. The building-block→structure mapping and the
-  structure-level models are available under NDA. Contact the Zafrens team.
+- The two UPR-associated series in ZSH-3757 have different neighbor
+  correlations and depth composition. See the [interpretation notes](../annex_hypotheses/INTERPRETATION_NOTES.md)
+  when interpreting their different responses.
+- Structures and structure-model inputs are outside this download.
+  [Methods and input access](../docs/ANALYSIS_ACCESS.md).

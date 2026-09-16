@@ -1,205 +1,84 @@
-# Z-Screen Program Package: Start Here
+# Start here
 
-This folder contains the shared program layer of the Z-Screen pilot:
-190,699 compound-cell-line transcriptomes from 162,914 combinatorial
-recipes, expressed as coordinates on 32 transcriptional programs that
-are defined once and used in every screen. The chemistry is assembled
-from reusable building blocks (public identifiers `BB_##########`); a
-compound's recipe states which block occupies which position
-(`bb0`-`bb4`). A context is one library × cell-line combination. The
-eight contexts are `zel024_hek293`, `zel024_h1650`, `zel028_hek293`,
-`zel028_a549`, `zel028_h1650`, `zel031_a549`, `zel031_thp1`, and
-`zel039_aec7` (evidence: `core/splits/fold_assignments.parquet`,
-`core/recipes.parquet`).
+Use Z-Screen to connect a public chemical recipe with a measured cellular response. This pilot package contains the processed data and reference model needed for the core examples below.
 
-Relative to the chemical space the same libraries can generate, these
-screens are a pilot. Their value is the factorization, building-block
-chemistry and a shared 32-program readout, because both make the next
-measurement more informative than the last. The design argument, the
-comparison to LINCS, JUMP-CP, Tahoe-100M, Recursion, and DNA-encoded
-libraries, and the recoverable biology are in
-`docs/WHY_THIS_MATTERS.md`.
+## 1. Load RNA responses and recipes
 
-A *program* is one of the 32 coordinated gene-expression patterns in
-the shared **basis** (`core/basis/`). A compound's *usage* of a program
-is the corresponding coordinate of its measured RNA response, so every
-compound in every context is a point in a 32-dimensional
-**program-usage space**. Compounds are partitioned into five fixed
-folds (fold = SHA256(`public_compound_id`) mod 5) so that models can
-be trained on four folds and scored on the held-out fifth.
+Run from the full package root:
 
----
+```bash
+python -m pip install -e .
+```
 
-## For guided readers: the screens and the biology
+```python
+from zscreen_program_package import data
 
-### What the 32 programs are
+usages, compounds = data.load_usages("zel024_hek293")
+surface, surface_ids = data.load_surface("zel024_hek293")
+basis = data.load_basis(k=32)
+genes = data.panel_genes()
+recipes = data.load_recipes()
 
-The 32 programs are coordinated gene-expression patterns, learned
-without labels from the measured screens, that recur across all 8
-contexts. They compress each compound's 6,000-gene response into 32
-coordinates, and they concentrate signal: cross-context structure is
-10-20× stronger in program space than gene by gene (see
-`docs/WHY_THIS_MATTERS.md` and `docs/SCIENTIFIC_OVERVIEW.md`).
-`annex_hypotheses/program_atlas.csv` organizes them into 26 named
-program groups (for example Myc/E2F proliferation,
-translation/ribosome, heat shock) with their top genes, driving
-building blocks, and anchor controls.
+assert compounds.equals(surface_ids)
+linked = compounds.merge(recipes, on="public_compound_id", validate="one_to_one")
+print(usages.shape, surface.shape, basis.shape)
+# (13914, 32) (13914, 6000) (32, 6000)
+```
 
-### Imaging
+Row *i* of each matrix matches row *i* of its supplied compound table. The gene panel supplies column labels. Helpers accept `root=` when called outside the package. [Notebook 1](examples/01_quickstart_usages.ipynb) · [Data dictionary](docs/DATA_DICTIONARY.md).
 
-Two libraries were also imaged, and a third carries per-detection
-image latents. Image embeddings predict the same 32 program usages at
-a mean per-program Pearson r of 0.135 in `zel024_hek293` and 0.1345
-in `zel039_aec7` (every fold × seed cell above its pairing null),
-while predicting the gene surface directly reaches only 0.014-0.032
-in the two deep contexts (6-14% of the ~0.24 oracle ceiling).
-Decoding through the 32-program bottleneck improves on direct gene
-prediction by about 50-65%: the program layer is the representation
-in which the images become usable. Imaging is largely redundant with
-chemistry in program space, with a small image-only component on
-stress/proteostasis programs and marker-level biology the RNA layer
-does not express. Evidence: `annex_imaging/README.md` and the
-decision-grade tables in that annex.
+## 2. Run the reference model
 
-### Same-well pairing
+```bash
+python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+python -m pip install -e ".[model]"
+python models/predict.py --check-golden
+python models/predict.py --context zel028_a549 --bb1 BB_0510191033 --bb2 BB_3460866978 --bb3 BB_1895570180 --bb4 BB_8135509566
+```
 
-`annex_same_well/` is a control study: 35 named compounds across
-11,435 wells, each well carrying both 448-dimensional image latents
-and 32-dimensional RNA latents measured from that well. Image→RNA
-ridge regression reaches mcPearson 0.277 (permutation p = 0.005);
-within-control well-to-well coupling remains 0.217 after control
-means are removed; all 35 controls show significant coupling
-(median 0.557). The learning curve crosses the null near 300 wells.
-A design paired only at compound grain (35 points) sits below the
-null band. See `annex_same_well/README.md`.
+The model predicts 32 program coordinates from a recipe and context. It returns standardized model output and the corresponding usage units. The `--check-golden` command compares predictions for 20 fixed recipes with the supplied values. CPU execution is sufficient. [Model requirements and methods](models/README.md).
 
-### Therapeutic hypotheses
+The shared basis and reference model were fit with **fold 0 held out**. Use the released compound fold assignments when evaluating a new model; recipe reuse means a compound split and an unseen-building-block split answer different questions. [Benchmark definitions](core/benchmark/README.md).
 
-`annex_hypotheses/` is the hypothesis layer: prioritized, tiered
-leads mined from the program and grammar layers, each with its null
-model and a concrete kill/confirm experiment. `anchor_leads.csv`
-(16 rows) is the guided entry point, led by a heat-shock chemotype
-that reproduces the measured phenotype of the control HTH-01-015 at
-rank 1. Confidence tiers run A (anchor-validated, multiple
-independent evidence lines) through B (strong pooled signal) to C
-(triage). The complete 1,027-row mining ledger is
-`hypothesis_ledger_full.csv`, labeled triage-grade on its face.
-Read `annex_hypotheses/README.md` and `HOW_TO_READ.md` with the tables.
-Compound ↔ CRISPR-knockout concordance, calibrated against an
-empirical null, ships separately in `annex_phenomimicry/`.
+## 3. Choose a worked notebook
 
-### Chemistry annex and the NDA path
+| Notebook | Task |
+|---|---|
+| [01 — Quickstart](examples/01_quickstart_usages.ipynb) | Load and align core responses and inspect program genes |
+| [02 — Benchmark](examples/02_reproduce_benchmark.ipynb) | Check fold assignments and the scale of the reported permutation null |
+| [03 — Hypotheses](examples/03_browse_hypotheses.ipynb) | Browse annotated hypotheses and their evidence tiers |
+| [04 — Imaging](examples/04_join_imaging.ipynb) | Join imaging features to RNA and check a saved prediction score |
 
-`annex_chemistry/` holds the chemistry-facing results:
-structure-based models generalize to never-before-synthesized
-building blocks at parity with identity-based models in the deepest
-context (r = 0.339 ± 0.020 in `zel024_hek293`, within 0.018 of the
-identity models elsewhere; evidence:
-`novel_bb_generalization.csv`), and structure-based attribution is
-validated against measurement at median Spearman 0.89-0.94
-(evidence: `attribution_certificate.csv`), plus three
-public-identifier structure-activity tables. Actual chemical
-structures are not in this package; the building-block→structure
-mapping and the structure-level models are available under NDA.
-See `annex_chemistry/README.md`.
+Notebook execution requires `python -m pip install -e ".[notebooks]"`. [Reproduction guide](docs/REPRODUCTION.md) gives the corresponding short code examples and distinguishes checks of distributed objects from reconstruction of upstream research analyses.
 
-**First four objects:** (1) `docs/WHY_THIS_MATTERS.md`,
-(2) `annex_hypotheses/README.md`, (3) `annex_imaging/README.md`,
-(4) `annex_same_well/README.md`.
-`examples/03_browse_hypotheses.ipynb` and
-`examples/04_join_imaging.ipynb` walk through the tables.
+## Explore the atlas
 
----
+| Start with… | Open… | Ask… |
+|---|---|---|
+| A chemical building block | [Recipes](core/recipes.parquet), [component effects](annex_chemistry/README.md) | Which measured partners and contexts share its response? |
+| A cellular response family | [Original members and centroids](atlas/original_clusters/README.md) | Which compounds and pathways characterize the group? |
+| An annotated program or hypothesis | [Hypothesis guide](annex_hypotheses/README.md) | What evidence and follow-up experiments support it? |
+| A familiar reference compound | [Control measurements](annex_controls/README.md) | How does the response vary across contexts and batches? |
+| A genetic-response comparison | [Processed phenomimicry results](annex_phenomimicry/README.md) | Which RNA patterns resemble the reference, under the stated scoring method? |
+| Images or markers | [Imaging](annex_imaging/README.md), [microscopy gallery](gallery/README.md) | Which features are linked at the compound or observation level? |
+| Directly paired measurements | [Same-well data](annex_same_well/README.md) | How do image and RNA features relate in the same well? |
 
-## For model-builders: predicting program usage
+[All annexes and their limits](docs/ANNEX_INDEX.md) · [Scientific overview](docs/SCIENTIFIC_OVERVIEW.md).
 
-### What the universal surface is
+## Read a compact example
 
-For each of the 8 contexts, the package includes two aligned measured
-layers:
+The [HSPA5-associated family](annex_case_studies/01_hspa5_building_block/README.md) illustrates a coherent aggregate response. Its [partner comparison](annex_case_studies/02_partner_responses/README.md) is exploratory, and its [retrospective selection curves](annex_case_studies/03_adaptive_replay/README.md) illustrate selection against a fixed RNA-response score. The [case-study data guide](annex_case_studies/DATA_GUIDE.md) identifies the values behind each figure.
 
-- **Program usages**: `core/usages/usages_{context}.npy`, a
-  (compounds × 32) matrix of per-compound usage vectors against the
-  pinned shared basis `shared_program_basis_v1`
-  (`core/basis/shared_basis_k32.npy`, hashes in
-  `core/basis/basis_registry.json`). Column *j* is program P*j*+1 in
-  every context.
-- **Harmonized 6,000-gene surfaces**:
-  `core/surfaces/surfaces_{context}.npy`, the same compounds as
-  (compounds × 6,000) device-centered expression matrices on one
-  shared gene panel (`core/surfaces/harmonized_6000_genes.parquet`).
+## Keep the representations distinct
 
-Row *i* of every matrix is the compound named in row *i* of its
-sibling `*_compounds.parquet` (the row-alignment contract; see
-`docs/DATA_DICTIONARY.md`). Each compound's building-block recipe is
-in `core/recipes.parquet`, keyed on `public_compound_id`.
+- A **recipe** lists building blocks at occupied positions `bb0`–`bb4`; structures are not included.
+- A **context** is a library–cell-line combination. Keep `context` when comparing profiles, and join compounds using `public_compound_id`.
+- Core **program usages** `P01`–`P32` refer to the pinned [shared basis](core/basis/basis_registry.json). Program annotation labels may require the mapping documented in the relevant annex.
+- The same-well key is **(`batch_id`, `well_id`)**. Its native RNA coordinates `D00`–`D31` are a separate representation from core programs.
+- A **genetic-response match** compares RNA patterns. Its target label is a mechanism hypothesis, not a direct binding result.
 
-### The fold convention: fold 0 is the test bed
+[Plain-language concepts](annex_case_studies/CONCEPTS.md) · [Normalization and models](docs/METHODS.md).
 
-Both the shared basis and the reference model were fit with **fold 0
-held out** (`core/splits/fold_assignments.parquet`). Fold-0 compounds
-were not seen in basis fitting, model training, or early stopping.
-The intended protocol is: train on folds 1-4, evaluate on fold 0.
-Usage coordinates are valid only against the pinned basis; a future
-refit would rotate program identities.
+## Additional inputs and reuse
 
-### Benchmark reference scores
-
-`core/benchmark/` reports the shared **context-token trunk** (one
-model across all contexts; the checkpoints in `models/`) and
-per-context expert models. On held-out compounds:
-
-- Program-space prediction (predicted vs measured usages, mean
-  per-program Pearson) is 0.105-0.530 across the eight training
-  contexts, z = 6.1-28.1 against permutation nulls, and 0.530
-  (z = 28.1) in `zel024_hek293` (evidence:
-  `core/benchmark/program_space_primary.csv`).
-- Decoded to gene space, the shared trunk improves on per-context
-  experts in six of eight contexts, is within about 3% in
-  `zel024_h1650`, and is lower by about 9% relative in `zel031_a549`
-  (0.0434 vs 0.0479; evidence:
-  `core/benchmark/per_context_comparison_k32.csv`).
-- k = 32 is the released resolution; a k = 12 basis is included for
-  coarser work (evidence: `core/benchmark/k_resolution.csv`).
-- Cross-context transfer, including a probe into a cell line never
-  used in training, is in `core/benchmark/cross_context_probe.csv`.
-
-All scores are evaluation-grade reference values: they describe the
-shipped data and reference configurations as measured, not tuning
-targets.
-
-### The reference model
-
-`models/` contains three seeds of the context-token trunk (a small
-transformer over the recipe tokens plus library and cell-line tokens,
-473,120 parameters), labeled as a reference model of evaluation
-grade. It maps a public recipe plus a context to a predicted
-32-dimensional usage vector. `models/golden_predictions.json` lets
-an environment be checked with one command
-(`python models/predict.py --check-golden`; optional `model` extra;
-PyTorch CPU is sufficient). See `models/README.md`.
-
-**First three objects:** (1) `core/usages/` with
-`core/basis/basis_registry.json`, (2) `core/benchmark/` with
-`core/splits/fold_assignments.parquet`, (3) `models/README.md`.
-`examples/01_quickstart_usages.ipynb` and
-`examples/02_reproduce_benchmark.ipynb` walk through both.
-
----
-
-## Orientation
-
-- `docs/WHY_THIS_MATTERS.md`: design argument, field comparison,
-  recoverable biology.
-- `docs/summary/`: short platform summary and field position.
-- `README.md`: package layout, install, quickstart, verification.
-- `docs/SCIENTIFIC_OVERVIEW.md`: the science and the design choices.
-- `docs/METHODS.md`: the pipeline, step by step.
-- `docs/DATA_DICTIONARY.md`: every file, column, array key, and contract.
-- `docs/REPRODUCTION.md`: worked reproduction recipes.
-- `verify.py`: one-command integrity and schema check
-  (`python verify.py`).
-
-License: software Apache-2.0; data and weights CC BY 4.0. See
-`LICENSE.md`. Cite DOI 10.5281/zenodo.22003567. Contact:
-hello@zafrens.com.
+Core examples run with the distributed inputs. Additional upstream analyses require their corresponding raw/reference data. For raw Z-Screen data and related analysis inputs, contact [hello@zafrens.com](mailto:hello@zafrens.com); obtain external genetic datasets from their original providers. [Analysis and access note](docs/ANALYSIS_ACCESS.md) · [Component terms](LICENSE.md).

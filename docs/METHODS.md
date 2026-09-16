@@ -1,4 +1,4 @@
-# Methods: raw counts to the shared program layer
+# Core methods: raw counts to the shared program layer
 
 Numbered procedures, in pipeline order. Method names cited as
 `registered_name_v1` strings are the names of record for those
@@ -22,9 +22,7 @@ depth on a comparable scale.
 
 A **device** is a physical measurement batch of nanowells. For each
 device, the across-compound mean profile (over all profiles on that
-device) is subtracted from every profile on it. This removes the shared
-abundance shape and additive device shift; it is provably the optimal
-additive device correction for this design. Device centering is step 3 of
+device) is subtracted from every profile on it. This subtracts shared abundance shape and the mean additive device shift. Device centering is step 3 of
 the pipeline, not the final correction.
 
 ## 4. Compound means
@@ -77,8 +75,7 @@ device).
 The shared program basis (`shared_program_basis_v1`) is a semi-NMF
 factorization: gene loadings W ≥ 0, shape (32, 6000), fit on the stacked,
 context-scaled harmonized surfaces. Fitting was restricted to **training
-folds 1-4** (fold = SHA256(`public_compound_id`) mod 5; fold 0 untouched
-by any fitting), with at most 10,000 compounds sampled per context. A k =
+folds 1-4** (fold = SHA256(`public_compound_id`) mod 5; fold 0 excluded from basis fitting), with at most 10,000 compounds sampled per context. A k =
 12 companion basis (`shared_program_basis_k12_v1`) ships for
 lower-resolution work; k = 32 is the shipped resolution (evidence:
 `core/benchmark/k_resolution.csv`). Both bases are hash-pinned in
@@ -90,9 +87,7 @@ the pinned basis.
 Per-compound **usages** (`program_usage_projection_v1`) are the free-sign
 least-squares projection of each context-scaled harmonized surface onto
 the shared k = 32 basis: one 32-dimensional coordinate vector per compound
-per context, shipped as `core/usages/usages_{context}.npy`. Column *j* is
-program P*j*+1 of the pinned basis in every context and every derived
-table in the package.
+per context, shipped as `core/usages/usages_{context}.npy`. Column *j* is program P*j*+1 of the pinned basis in every core context. Program annotation tables have the mapping/scope stated in their annexes.
 
 ## 9. Reference model
 
@@ -109,18 +104,7 @@ token to the 32 programs (473,120 parameters, deliberately no per-context
 heads). Training was joint across the 8 predictive contexts with
 context-balanced batches, identity-channel dropout 0.30, AdamW (lr 1e-3,
 weight decay 0.01, 3-epoch warmup + cosine decay), early stopping patience
-8, and **fold 0 held out** from training and early stopping. Provenance,
-stated factually: the original evaluation campaign ran this exact
-registered configuration but persisted only predictions and metrics; the
-shipped weights are a 2026-08-15 retrain of the identical registered
-configuration and code (original code sha256
-`89e4059f911cfb4c60450e3b790c55d091a4b265e8dfae3b464752fa1c1d797a`; same
-data snapshot, same training image, torch 2.5.1, same seeds), with
-checkpoint saving as the only change. Seeds 0 and 1 reproduce the original
-runs' held-out predictions bit-identically; seed 2 diverged from a one-off
-nondeterministic original trajectory while two independent retrains agree
-bit-identically with each other, with population metrics agreeing to
-~5×10⁻³ on trained contexts. Full deltas: `models/README.md`.
+8, and **fold 0 held out** from training and early stopping. The checkpoint metadata records the architecture, training settings, public building-block vocabulary and output scaling. Evaluate these checkpoints with the pinned fold-0 results in [core/benchmark/README.md](../core/benchmark/README.md); the broader multi-fold benchmark is a separate evaluation.
 
 ## 10. Summary
 
@@ -136,6 +120,8 @@ programs, that mean the same thing in every screen. Every compound's
 measurement is re-expressed as 32 numbers saying how strongly it uses each
 program. Finally, a small neural network learns to predict those 32
 numbers from the recipe alone, so the effect of recipes never measured can
-be estimated. One fixed group of compounds, fold 0, was kept untouched by
-all of this fitting, so anyone can test their own models on data the
-package's fitting never saw.
+be estimated. One fixed group of compounds, fold 0, was excluded from basis fitting and reference-model training/early stopping. Use the released fold definitions to evaluate new models on the corresponding held-out compounds.
+
+## Scope and related analyses
+
+These steps define the distributed core objects. The package supports loading those processed objects and running the reference model; upstream raw-count extraction is not a bundled workflow. The separate genetic-response and retrospective selection methods use their own normalization and gene axes. [Short analysis methods and input access](ANALYSIS_ACCESS.md) · [Annex index](ANNEX_INDEX.md).

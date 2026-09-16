@@ -1,0 +1,27 @@
+{
+  "gallery_version": "1",
+  "source_panel": "ZS13",
+  "source_library": "ZEL024",
+  "source_image_cell_line": null,
+  "linked_rna_context": "zel024_hek293",
+  "link_level": "public compound and library; separate image and RNA measurements",
+  "minimum_core_family_compounds": 100,
+  "minimum_valid_crops_per_representative": 3,
+  "minimum_representative_candidates_per_family": 5,
+  "family_rule": "Among component-position groups passing support thresholds, choose the largest norm of the median core program vector after per-program standardization across the RNA context. Choose the lowest-norm eligible group at the same position as comparator.",
+  "member_rule": "Among compounds with at least three valid ZS13 crops, choose the core program vector nearest the family's full-member median; break ties by public compound ID.",
+  "crop_rule": "Within the chosen compound, use the crop nearest its four-marker median in log1p cell-intensity space divided by the panel-wide interquartile range; break ties by crop index.",
+  "marker_columns": [
+    "p21_cell_mean",
+    "phalloidin_cell_mean",
+    "dapi_cell_mean",
+    "p62_cell_mean"
+  ],
+  "crop_filters": "Mapped public non-control compound, uncensored, n_cells > 0, finite nonnegative values for the four marker means, and matching core recipe coordinates.",
+  "display_percentiles": [
+    0.5,
+    99.5
+  ],
+  "display_rule": "One linear grayscale range per channel, calculated across both selected raw crops and shared between their rows. Raw arrays remain unchanged.",
+  "image_selection_after_visual_inspection": false
+}

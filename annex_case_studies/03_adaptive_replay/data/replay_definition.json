@@ -1,0 +1,27 @@
+{
+  "result_type": "retrospective_selection_comparison",
+  "initial_selected": 200,
+  "additional_rounds": 6,
+  "per_round_selected": 200,
+  "starts": [
+    20260914,
+    20260915,
+    20260916
+  ],
+  "metric": "Recall of the highest-scoring 5 percent in the full recipe-available universe",
+  "denominator_includes_reserved_test": true,
+  "reserved_test_may_be_acquired": false,
+  "contexts": {
+    "zel039_aec7": {
+      "universe": 9266,
+      "never_selected_test_n": 926,
+      "top5_n": 464
+    },
+    "zel024_hek293": {
+      "universe": 13199,
+      "never_selected_test_n": 1319,
+      "top5_n": 660
+    }
+  },
+  "result_scope": "Recovery of fixed high-scoring RNA-response sets under equal acquisition budgets; these are not validated inhibitor hit rates."
+}

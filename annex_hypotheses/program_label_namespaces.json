@@ -1,0 +1,239 @@
+{
+  "source_table": "program_atlas.csv",
+  "rows": [
+    {
+      "context": "zel024_hek293",
+      "program_group_id": "ZEL024-G01",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P1",
+      "atlas_member_programs": "P1;P3;P5;P6;P8;P9;P10;P12;P15;P16;P17;P18;P21;P22;P23;P24;P25;P26;P27;P29;P32"
+    },
+    {
+      "context": "zel024_hek293",
+      "program_group_id": "ZEL024-G02",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P2",
+      "atlas_member_programs": "P2"
+    },
+    {
+      "context": "zel024_hek293",
+      "program_group_id": "ZEL024-G03",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P4",
+      "atlas_member_programs": "P4"
+    },
+    {
+      "context": "zel024_hek293",
+      "program_group_id": "ZEL024-G04",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P7",
+      "atlas_member_programs": "P7"
+    },
+    {
+      "context": "zel024_hek293",
+      "program_group_id": "ZEL024-G05",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P11",
+      "atlas_member_programs": "P11"
+    },
+    {
+      "context": "zel024_hek293",
+      "program_group_id": "ZEL024-G06",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P13",
+      "atlas_member_programs": "P13"
+    },
+    {
+      "context": "zel024_hek293",
+      "program_group_id": "ZEL024-G07",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P14",
+      "atlas_member_programs": "P14"
+    },
+    {
+      "context": "zel024_hek293",
+      "program_group_id": "ZEL024-G08",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P19",
+      "atlas_member_programs": "P19"
+    },
+    {
+      "context": "zel024_hek293",
+      "program_group_id": "ZEL024-G09",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P20",
+      "atlas_member_programs": "P20"
+    },
+    {
+      "context": "zel024_hek293",
+      "program_group_id": "ZEL024-G10",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P28",
+      "atlas_member_programs": "P28"
+    },
+    {
+      "context": "zel024_hek293",
+      "program_group_id": "ZEL024-G11",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P30",
+      "atlas_member_programs": "P30"
+    },
+    {
+      "context": "zel024_hek293",
+      "program_group_id": "ZEL024-G12",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P31",
+      "atlas_member_programs": "P31"
+    },
+    {
+      "context": "zel039_aec7",
+      "program_group_id": "ZEL039-G01",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P1",
+      "atlas_member_programs": "P1;P6;P8;P9;P12;P13;P14;P16;P17;P18;P20;P22;P23;P24;P25;P26;P27;P28;P29;P30;P32"
+    },
+    {
+      "context": "zel039_aec7",
+      "program_group_id": "ZEL039-G02",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P2",
+      "atlas_member_programs": "P2"
+    },
+    {
+      "context": "zel039_aec7",
+      "program_group_id": "ZEL039-G03",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P3",
+      "atlas_member_programs": "P3"
+    },
+    {
+      "context": "zel039_aec7",
+      "program_group_id": "ZEL039-G04",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P4",
+      "atlas_member_programs": "P4"
+    },
+    {
+      "context": "zel039_aec7",
+      "program_group_id": "ZEL039-G05",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P5",
+      "atlas_member_programs": "P5"
+    },
+    {
+      "context": "zel039_aec7",
+      "program_group_id": "ZEL039-G06",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P7",
+      "atlas_member_programs": "P7"
+    },
+    {
+      "context": "zel039_aec7",
+      "program_group_id": "ZEL039-G07",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P10",
+      "atlas_member_programs": "P10"
+    },
+    {
+      "context": "zel039_aec7",
+      "program_group_id": "ZEL039-G08",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P11",
+      "atlas_member_programs": "P11"
+    },
+    {
+      "context": "zel039_aec7",
+      "program_group_id": "ZEL039-G09",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P15",
+      "atlas_member_programs": "P15"
+    },
+    {
+      "context": "zel039_aec7",
+      "program_group_id": "ZEL039-G10",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P19",
+      "atlas_member_programs": "P19"
+    },
+    {
+      "context": "zel039_aec7",
+      "program_group_id": "ZEL039-G11",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P21",
+      "atlas_member_programs": "P21"
+    },
+    {
+      "context": "zel039_aec7",
+      "program_group_id": "ZEL039-G12",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P31",
+      "atlas_member_programs": "P31"
+    },
+    {
+      "context": "zel031_a549",
+      "program_group_id": "ZEL031-G01",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P1",
+      "atlas_member_programs": "P1;P2;P4;P5;P6;P7;P8;P9;P10;P11;P12;P13;P14;P15;P16;P17;P18;P19;P20;P21;P22;P23;P24;P25;P26;P27;P28;P29;P30;P31;P32"
+    },
+    {
+      "context": "zel031_a549",
+      "program_group_id": "ZEL031-G02",
+      "program_label_namespace": "zscreen_program_atlas_groups",
+      "current_shared_basis_program": null,
+      "mapping_status": "not_established",
+      "atlas_primary_program": "P3",
+      "atlas_member_programs": "P3"
+    }
+  ]
+}

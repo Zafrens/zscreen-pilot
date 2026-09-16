@@ -4,8 +4,7 @@ A same-well control study: 35 well-known control compounds across 11,435
 wells (2 batches), where each well was measured twice, once by microscopy
 and once by RNA sequencing, so imaging and RNA are paired at the
 individual-well grain, not just at the compound grain. This is the
-measurement design the rest of the package approximates by conditional
-pairing; here the pairing is exact.
+package’s direct observation-level link between the two modalities.
 
 **Terms used throughout.** A *well* is one nanowell holding cells during
 measurement; a *detection* is one imaged object (cell) found in a well, so
@@ -27,8 +26,11 @@ is `same_well_hek293` (one cell line, HEK293).
 | `control_compound_map.csv` | 35 rows | `control_name` ↔ `public_compound_id` ↔ `public_compound_name` for the 35 controls. |
 | `evidence/cross_modal_regimes.csv` | 3 rows | Image→RNA ridge predictability in three evaluation regimes (raw, within-control, across-control LOGO) with permutation-null statistics. |
 | `evidence/per_control_coupling.csv` | 36 rows | Within-control image↔RNA coupling per control (PLS1 score correlation with nulls): 35 control rows plus a `GLOBAL_WITHIN_CONTROL` summary row (pooled across controls, 0.420 vs null 0.052). |
-| `evidence/learning_curve.csv` | 6 rows | Cross-modal predictability vs number of wells, with null bands. |
-| `evidence/learning_curve.png` | n/a | The learning curve, plotted. |
+| `evidence/learning_curve.csv` | 6 rows | Cross-modal predictability vs total sampled CV-dataset wells, with null bands. |
+| [evidence/mantel_bootstrap.csv](evidence/mantel_bootstrap.csv) | 2 rows | Control-mean Mantel statistic, permutation p value and two bootstrap summaries, keyed by `estimate`. |
+| [MANTEL_METHODS.md](MANTEL_METHODS.md) | n/a | Statistic definition, runnable reconstruction, result-table schema and interpretation of the two resampling units. |
+| [evidence/learning_curve.png](evidence/learning_curve.png) | n/a | Plot of prediction agreement versus total wells in the sampled cross-validation dataset. |
+| `../annex_measurement_design/figures/same_well_learning_curve.png` | n/a | The same sample-size comparison in the measurement-design annex. |
 
 ## How to start using it
 
@@ -60,7 +62,7 @@ Three things to know before analyzing:
 
 ## Headline findings
 
-**1. Same-well pairing supports a well-powered image→RNA cross-modal map.**
+**1. Same-well measurements support image-to-RNA prediction.**
 Ridge regression from the 448 image latents to the 32 RNA latents reaches
 mcPearson 0.277 at the well level (5-fold, label-shuffle null
 0.000 ± 0.007, p = 0.005). The signal is not just control identity: after
@@ -77,30 +79,50 @@ median 0.557, range 0.465-0.752. Cross-modal coupling is a generic
 property of perturbed wells, not a few strong controls carrying the
 average. Evidence: `evidence/per_control_coupling.csv`.
 
-**3. Same-well data tightens even the compound-grain statistic.** The
-Mantel correlation between image-space and RNA-space distances across the
-35 control means is r = 0.773 (permutation p = 0.0005). Bootstrapping at
-compound grain gives a 95% CI of [0.665, 0.887]; the well-powered
-bootstrap gives [0.716, 0.779]: a 3.4× tighter standard error (0.058 vs
-0.017) on the same 35-compound statistic, because each compound is now
-supported by hundreds of paired wells.
+**3. Control-mean image and RNA distances agree.** Across the 35 controls,
+the correlation-distance Mantel statistic is **r = 0.772892** (two-sided
+permutation p = 0.00049975). The compound-bootstrap interval is
+[0.688, 0.895]; the within-control well-resampling interval is
+[0.711, 0.778]. The latter
+resamples image and RNA wells independently and keeps the controls fixed;
+these intervals answer different uncertainty questions and their width or
+SD ratio does not isolate a benefit caused by exact pairing.
+[Results](evidence/mantel_bootstrap.csv) ·
+[Method, schema and reconstruction](MANTEL_METHODS.md).
 
-**4. Cross-modal signal needs a few hundred wells; compound-identity
-pairing across plates does not clear the null.** The learning curve
+**4. The learning curve varies dataset size.** The learning curve
 (ridge image→RNA, 10 resampled replicates per well count, null bands
 from 50 shuffles each) shows mcPearson emerging above the null 95%
-band at ~300 wells and rising monotonically to 0.277 at the full
-11,435. At 35 wells, one paired point per compound, the grain at
-which image and RNA are usually joined by compound identity across
-plates (Way et al., *Cell Syst.*, 2022; the JUMP-CP and Recursion
-public sets follow that design), the score is -0.219, *below* the
-null band [-0.106, 0.096]. Same-well pairing is what turns a
-35-point compound-grain correlation into a well-powered cross-modal
-map. Evidence: `evidence/learning_curve.csv`,
-`evidence/learning_curve.png`.
+band at ~300 total sampled CV-dataset wells and reaching 0.279 in
+the full 11,435-well learning-curve table. At 35 total sampled wells,
+one paired point per compound, the score is -0.219, below the null
+band [-0.106, 0.096]. These are sizes of the entire sampled
+cross-validation dataset, not the number of training wells in each
+fold. The comparison changes sample size and cannot by itself establish
+that compound-level joins across plates lack signal or isolate a
+causal advantage of exact pairing. The 0.277 regime estimate
+and the 0.279 learning-curve mean use separate evaluation configurations.
+Evidence: `evidence/learning_curve.csv` and the
+[sample-size plot](../annex_measurement_design/figures/same_well_learning_curve.png).
+
+**5. The matched comparison tests pairing at equal size.** With training-only
+control/batch residualization, exact pairs reach mean held-out RNA-coordinate
+r = 0.1248 at 8,000 training wells, versus 0.0007 after within-control/batch
+RNA shuffling. Mean R² is 0.0029 versus -0.0309. Both arms use the same
+training subsets and 2,287 correctly paired test wells. See the
+[completed comparison and smaller sizes](../annex_measurement_design/README.md).
 
 ## Interpretation guidance
 
+- **Native RNA coordinates differ from core programs.** This study's
+  `D00`–`D31` are its own RNA encoder space, not the shared gene programs
+  `P01`–`P32`. Never compare them coordinate by coordinate or describe
+  their prediction scores as shared-program prediction.
+- **Resampling units determine the question.** The Mantel comparison varies
+  control identities or wells within fixed controls. The learning curve
+  varies total dataset size. The matched pairing comparison holds the
+  training and test wells fixed. These estimates cannot be substituted for
+  one another when interpreting uncertainty or the value of exact pairing.
 - **Image-latent spaces are not documented as shared across annexes.** The
   channel-level correspondence between the 448-dimensional latents in this
   annex and the 448-dimensional zel039 latents in `annex_imaging/` is not
@@ -108,19 +130,16 @@ map. Evidence: `evidence/learning_curve.csv`,
   two latent spaces assuming per-channel alignment. All analyses reported
   here live entirely within this annex and are unaffected.
 - **This is pilot scale by design.** Thirty-five controls in one cell line
-  demonstrates the value of the same-well measurement design (well-grain
-  cross-modal maps, per-control coupling, tighter compound-grain
-  statistics), not library-scale coverage. Conclusions about specific
+  supports a same-well measurement example: prediction, within-control
+  coupling and sample-size sensitivity in this study. Conclusions about specific
   biology should be drawn from the package's deep contexts; conclusions
   about what same-well pairing buys methodologically are what this annex
   is for.
 
-## Provenance notes
+## Data representation
 
-- Batches were anonymized to `batch_1`/`batch_2`; no other values were
-  altered. The wells table reproduces the verified analysis table
-  bit-for-bit.
+- Batches use the public identifiers `batch_1` and `batch_2`.
 - The RNA latents are the 32-dimensional latents of the same-well assay's
   RNA measurement (`D00`-`D31`), carried inline per well.
-- All matched detections were used (no filtering on barcode match type or
-  iteration counts), matching the analysis the evidence tables report.
+- All matched detections are included, with no filtering on barcode match
+  type or iteration counts.

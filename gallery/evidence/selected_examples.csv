@@ -1,0 +1,3 @@
+role,position,family_building_block_id,public_compound_id,rna_context,source_panel,hdf5_dim_0_index,valid_crops_for_compound,segmented_cells_in_crop,rna_distance_to_family_median,crop_distance_to_marker_median,family_core_compounds,family_representative_candidates,family_response_norm
+response_family,bb3,BB_4281749019,CPD_834100682076,zel024_hek293,ZS13,2208,3,5,3.109928994970046,0.49170974721621974,168,7,3.3319520611492077
+comparator_family,bb3,BB_9932753009,CPD_984699400763,zel024_hek293,ZS13,9607,3,4,2.8743095107720347,0.0,168,7,0.7268738144557941

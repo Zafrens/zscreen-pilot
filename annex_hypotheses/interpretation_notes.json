@@ -1,0 +1,33 @@
+{
+  "scope": "Interpretation of selected response-family hypotheses.",
+  "rows": [
+    {
+      "hypothesis_id": "ZSH-0001",
+      "status": "response_family_hypothesis",
+      "current_interpretation": "Heat-shock family with a separately measured HTH-01-015 control connection. Neighborhood, cluster and BB-effect evidence share the ridge-model basis; these are not three independent biological validation lines. No library NUAK1/ROCK target assignment is established.",
+      "source_tables": [
+        "anchor_leads.csv"
+      ]
+    },
+    {
+      "hypothesis_id": "ZSH-3757",
+      "status": "series_must_be_read_separately",
+      "current_interpretation": "The 53-member BB_8930974984 series on BB_2371372935 has the negative-neighbor cliff and strong deep-tier skew. The 47-member BB_7908408907 series has positive neighbor correlation, lower cliff percentile and no deep-tier members. Do not transfer the first series metrics to both.",
+      "source_tables": [
+        "anchor_leads.csv",
+        "../annex_chemistry/chemotype_series.csv",
+        "../annex_chemistry/activity_cliffs.csv"
+      ]
+    },
+    {
+      "hypothesis_id": "ZSH-3760",
+      "status": "method_specific_reference_hypothesis",
+      "current_interpretation": "The recorded z values describe a signed-rank comparison. They are not interchangeable with cosine/consensus or ensemble scores and do not establish METTL3 inhibition by library compounds.",
+      "source_tables": [
+        "anchor_leads.csv",
+        "../annex_phenomimicry/validation_empirical_p.csv",
+        "../annex_phenomimicry/ensemble_rescoring_panel.csv"
+      ]
+    }
+  ]
+}

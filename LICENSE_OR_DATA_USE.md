@@ -1,11 +1,3 @@
 # Data-use terms
 
-This file is retained so older links still resolve. The grant of
-rights is in `LICENSE.md`.
-
-Software (`src/`, `models/model_def.py`, `models/predict.py`,
-`verify.py`, `examples/`, `pyproject.toml`) is Apache License 2.0.
-Data and model weights are Creative Commons Attribution 4.0
-International. Chemical structures are not included.
-
-Copyright 2026 Zafrens, Inc. Contact: hello@zafrens.com
+See [LICENSE.md](LICENSE.md). Zafrens data/model weights are CC BY-NC 4.0; Zafrens software is Apache 2.0. Selected genetic-comparison result portions retain separate source notices. Upstream genetic-reference arrays are not distributed here. Chemical structures are not included. For Zafrens data access or commercial licensing, contact hello@zafrens.com.

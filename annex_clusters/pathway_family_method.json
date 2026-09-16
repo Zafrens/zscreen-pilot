@@ -1,0 +1,218 @@
+{
+  "selected_set": "Use top_up_set if top_up_q<0.05; else top_dn_set if top_dn_q<0.05; otherwise No significant pathway.",
+  "keyword_rule": "Lowercase the full selected set string; use the first matching substring in the ordered list, or Other if none.",
+  "ordered_keyword_rules": [
+    [
+      "myc",
+      "Myc/prolif"
+    ],
+    [
+      "e2f",
+      "Myc/prolif"
+    ],
+    [
+      "g2-m",
+      "Cell cycle"
+    ],
+    [
+      "cell cycle",
+      "Cell cycle"
+    ],
+    [
+      "mitotic",
+      "Cell cycle"
+    ],
+    [
+      "ribosom",
+      "Translation/ribo"
+    ],
+    [
+      "translation",
+      "Translation/ribo"
+    ],
+    [
+      "protein targeting",
+      "Translation/ribo"
+    ],
+    [
+      "rrna",
+      "Translation/ribo"
+    ],
+    [
+      "oxidative phosphorylation",
+      "Mito/OXPHOS"
+    ],
+    [
+      "mitochond",
+      "Mito/OXPHOS"
+    ],
+    [
+      "respiratory",
+      "Mito/OXPHOS"
+    ],
+    [
+      "complex i",
+      "Mito/OXPHOS"
+    ],
+    [
+      "prion",
+      "Mito/Proteostasis"
+    ],
+    [
+      "parkinson",
+      "Mito/Proteostasis"
+    ],
+    [
+      "huntington",
+      "Mito/Proteostasis"
+    ],
+    [
+      "alzheimer",
+      "Mito/Proteostasis"
+    ],
+    [
+      "amyotrophic",
+      "Mito/Proteostasis"
+    ],
+    [
+      "neurodegeneration",
+      "Mito/Proteostasis"
+    ],
+    [
+      "cardiomyopathy",
+      "Mito/Proteostasis"
+    ],
+    [
+      "cardiac muscle",
+      "Mito/Proteostasis"
+    ],
+    [
+      "protein processing in endoplasmic",
+      "ER/UPR"
+    ],
+    [
+      "unfolded protein",
+      "ER/UPR"
+    ],
+    [
+      "endoplasmic",
+      "ER/UPR"
+    ],
+    [
+      "tubulin folding",
+      "ER/UPR"
+    ],
+    [
+      "attenuation phase",
+      "ER/UPR"
+    ],
+    [
+      "mtorc1",
+      "mTORC1"
+    ],
+    [
+      "mtor",
+      "mTORC1"
+    ],
+    [
+      "heat",
+      "Stress/HSF"
+    ],
+    [
+      "chemical stress",
+      "Stress/HSF"
+    ],
+    [
+      "proteasom",
+      "Proteasome/UPS"
+    ],
+    [
+      "ubiquit",
+      "Proteasome/UPS"
+    ],
+    [
+      "interferon",
+      "Immune/IFN"
+    ],
+    [
+      "immune",
+      "Immune/IFN"
+    ],
+    [
+      "tnf",
+      "Immune/IFN"
+    ],
+    [
+      "inflamm",
+      "Immune/IFN"
+    ],
+    [
+      "interleukin",
+      "Immune/IFN"
+    ],
+    [
+      "antigen",
+      "Immune/IFN"
+    ],
+    [
+      "cholesterol",
+      "Lipid/cholesterol"
+    ],
+    [
+      "fatty acid",
+      "Lipid/cholesterol"
+    ],
+    [
+      "apoptosis",
+      "Apoptosis"
+    ],
+    [
+      "p53",
+      "p53/apoptosis"
+    ],
+    [
+      "glycolysis",
+      "Glycolysis"
+    ],
+    [
+      "hypoxia",
+      "Hypoxia"
+    ],
+    [
+      "emt",
+      "EMT/ECM"
+    ],
+    [
+      "extracellular matrix",
+      "EMT/ECM"
+    ],
+    [
+      "epithelial",
+      "EMT/ECM"
+    ],
+    [
+      "amino acid transport",
+      "Amino acid transport"
+    ],
+    [
+      "splice",
+      "mRNA splicing"
+    ],
+    [
+      "mrna splicing",
+      "mRNA splicing"
+    ],
+    [
+      "kras",
+      "KRAS/MAPK"
+    ],
+    [
+      "mapk",
+      "KRAS/MAPK"
+    ]
+  ],
+  "input": "cluster_census.csv",
+  "output": "pathway_family_counts.csv",
+  "unit": "One cluster identified by context and cluster_id.",
+  "interpretation": "Heuristic display categories, not independent mechanistic categories; Other retains significant pathways that lack a keyword match."
+}

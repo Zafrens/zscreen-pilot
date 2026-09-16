@@ -1,48 +1,23 @@
-# License
+# License and source terms
 
-Copyright 2026 Zafrens, Inc.
+Copyright 2026 Zafrens, Inc., for Zafrens contributions.
 
-This package contains software, data, and model weights. They are
-licensed separately. Chemical structures are not included and are
-not licensed here.
+This is a pilot data/model resource with selected processed evidence annexes. Upstream CRISPR reference matrices and compact reference signatures are not bundled. Chemical structures are not included.
+
+## Zafrens data, models and documentation
+
+Zafrens-owned chemical recipes, measured/processed cellular responses, model weights, program bases, figures, tables and documentation are licensed under [CC BY-NC 4.0](LICENSES/CC-BY-NC-4.0.txt), except for the source-specific portions described below. Cite the release and retain attribution. Contact [hello@zafrens.com](mailto:hello@zafrens.com) for commercial licensing of Zafrens material. Previously granted licenses remain unaffected.
 
 ## Software
 
-The following files are licensed under the Apache License, Version
-2.0 (`LICENSES/Apache-2.0.txt`):
+Zafrens-authored Python source, model inference code, notebook code and verification scripts are licensed under [Apache 2.0](LICENSES/Apache-2.0.txt). Notebook outputs and embedded data retain their data-component terms.
 
-- `src/`
-- `models/model_def.py`
-- `models/predict.py`
-- `verify.py`
-- `examples/`
-- `pyproject.toml`
+## Selected genetic-comparison results
 
-You may use, modify, and distribute that software, including for
-commercial purposes, provided you retain the copyright notice and
-the Apache-2.0 text.
+Some processed annex tables and case figures compare Z-Screen responses with external genetic datasets. Attribution and any applicable source terms remain attached to those result portions; this release grants no rights to the underlying third-party datasets. See [reference-source notes](docs/REFERENCE_SOURCES.md) and the [component map](component_licenses.json).
 
-## Data and model weights
+The HEK293 METTL3 selection figure/table portions derived from Xaira X-Atlas/Orion retain the conservative [CC BY-NC-SA 4.0 notice](LICENSES/CC-BY-NC-SA-4.0.txt) for those source-derived portions. The AEC7/teloHAEC correspondence example retains its source attribution and source-rights status, detailed in the reference note. These qualifications concern selected comparative results; they do not make Zafrens-owned core measurements or generic code third-party material.
 
-All other contents of this package (measured surfaces and program
-usages, recipes, the pinned basis, benchmark tables, imaging and
-same-well annexes, hypothesis tables, model checkpoints, and the
-building-block embedding table) are licensed under Creative
-Commons Attribution 4.0 International (`LICENSES/CC-BY-4.0.txt`).
+## Identifiers and access
 
-You may copy, redistribute, and adapt that material, including for
-commercial purposes, provided you give appropriate credit. A
-sufficient credit is a citation to this package as specified in
-`CITATION.cff`.
-
-Building-block and compound identifiers (`BB_##########`,
-`CPD_############`) are public opaque keys. They do not convey
-chemical structure. The building-block-to-structure map is
-available under a separate agreement; write to hello@zafrens.com.
-
-The hypothesis tables are leads, not validated therapeutic claims.
-Nothing in this package is licensed for regulatory use.
-
-## Contact
-
-Zafrens, Inc.: hello@zafrens.com
+Public CPD and BB identifiers are opaque keys and do not disclose structures. For raw Z-Screen or additional analysis input access, contact [hello@zafrens.com](mailto:hello@zafrens.com). External reference datasets are obtained from their original providers. See [analysis access](docs/ANALYSIS_ACCESS.md).

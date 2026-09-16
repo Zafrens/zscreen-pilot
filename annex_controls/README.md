@@ -24,7 +24,7 @@ well in that run carries one of the 35 controls), in five cell lines:
 control wells, which is why the controls are not rows of the `core/`
 matrices and ship here as their own layer. Everything in this annex is
 **measured** (derived from measurement by the same pipeline steps as
-`core/`; see `docs/METHODS.md`), not predicted.
+`core/`; see [core methods](../docs/METHODS.md)), not model predictions.
 
 ## What is in this annex
 
@@ -49,6 +49,15 @@ Replication per context (wells / pseudobulks / batches):
 
 ## How to start using it
 
+For an executed analysis of how averaging additional measured batches
+changes agreement with disjoint held-out batches, start with
+[measurement-design evidence](../annex_measurement_design/README.md). It includes
+all five contexts, the 34-control intersection required for HEK293,
+fixed batch partitions, and completed gene/program result tables.
+The accumulation curves use equal batch weights. The control surfaces
+below use capped square-root well-count weights; the two summaries answer
+different questions and should be compared with their weighting stated.
+
 ```python
 import numpy as np
 import pandas as pd
@@ -68,13 +77,12 @@ With the helper package installed (`pip install -e .`),
 `data.load_control_surface(context)`, `data.load_control_pseudobulks(context)`,
 and `data.load_control_usages()` wrap exactly these reads.
 
-## Three things to know before analyzing
+## Measurement and coordinate definitions
 
-- **Controls were never used in any fitting.** The shared basis was fit
-  on training folds 1-4 of the library compounds only, and the reference
-  model was fit the same way. The controls are an untouched, independent
-  measurement set; the fold-0 test-bed convention
-  (`docs/DATA_DICTIONARY.md`) is unaffected.
+- **Controls were excluded from core basis and reference-model training.**
+  Those fits use library compounds in training folds 1–4. The control-run
+  measurements provide a separate reference layer; later control-based
+  measurement studies use their own stated fits and splits. The core test set is fold 0.
 - **The replicate unit is the pseudobulk, not the well.** Pseudobulk
   counts are summed over each control × batch's wells and carry
   full-width `total_umis`, so log1p-CP10k and any batch-centering
@@ -104,12 +112,8 @@ encoder space, **not** the 32-program usages in this annex; the two
 coordinate. This annex adds the gene-level view (6,000-gene surfaces and
 their program projections) and the four other cell lines.
 
-## Validation anchors
+## Reading the control profiles
 
-- The usage projection operator reproduces a shipped core usage matrix
-  from its shipped surface exactly (per-program Pearson 1.0), and the
-  control surfaces reproduce the internal control-surface build at
-  per-control Pearson 1.000000 in all five contexts.
 - The control usages carry the expected biology: HTH-01-015, the
   heat-shock anchor used in `annex_hypotheses/`, loads the heat-shock
   program (P16) at z ≈ +2 among the 35 controls in `zic008_aec7`.
@@ -123,12 +127,13 @@ their program projections) and the four other cell lines.
   a library-scale screen: use it for anchoring, reliability estimation,
   and method calibration, and draw compound-discovery conclusions from
   the `core/` contexts.
-- Program-space structure is the strongest analysis level here too;
-  single-program single-control calls in one context are triage-grade.
+- Use the supplied gene and program representations at their stated
+  resolution. A reference-control match is a response comparison, not a
+  molecular-target assignment for a library compound.
 - As everywhere in the package, usage column *j* is program P*j*+1 of
   the pinned basis (`core/basis/basis_registry.json`).
 
-## Provenance notes
+## Aggregation method
 
 - Well-level UMI counts were pooled per control × batch, normalized to
   log1p-CP10k, batch-centered, and averaged per control with capped

@@ -1,0 +1,9 @@
+context,observed_compounds,bb0,bb1,bb2,bb3,bb4,nominal_independent_combinations,observed_to_nominal_fraction,scope
+zel024_h1650,10686,12,7,2,83,0,13944,0.7663511187607573,Product of observed per-position vocabularies; not a synthesis-feasibility or unmeasured-response claim
+zel024_hek293,13914,12,7,2,83,0,13944,0.9978485370051635,Product of observed per-position vocabularies; not a synthesis-feasibility or unmeasured-response claim
+zel028_a549,40622,0,86,1,88,88,665984,0.06099545935037479,Product of observed per-position vocabularies; not a synthesis-feasibility or unmeasured-response claim
+zel028_h1650,25906,0,86,1,88,88,665984,0.038898832404382085,Product of observed per-position vocabularies; not a synthesis-feasibility or unmeasured-response claim
+zel028_hek293,61396,0,87,1,88,88,673728,0.09112876413033152,Product of observed per-position vocabularies; not a synthesis-feasibility or unmeasured-response claim
+zel031_a549,8321,129,88,0,0,0,11352,0.7329985905567301,Product of observed per-position vocabularies; not a synthesis-feasibility or unmeasured-response claim
+zel031_thp1,9041,129,88,0,0,0,11352,0.7964235377026074,Product of observed per-position vocabularies; not a synthesis-feasibility or unmeasured-response claim
+zel039_aec7,20813,9,49,53,0,0,23373,0.8904719120352543,Product of observed per-position vocabularies; not a synthesis-feasibility or unmeasured-response claim

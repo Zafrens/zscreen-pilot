@@ -1,0 +1,5 @@
+analysis_layer,metric,range_min,range_max,note
+"gene_space (per-compound, 6000-gene profile)",within-context repeat-measurement ceiling (median Pearson),0.0042,0.0107,per-compound contrast vectors are noise-dominated at pilot depth
+"gene_space (per-compound, 6000-gene profile)","cross-cell-line agreement, same compound (median Pearson)",0.0009,0.0082,22-77% of the within-context ceiling
+program_space (32 usages),within-context repeat-measurement ceiling (median Pearson),0.063,0.202,"usage coordinates, shared k=32 basis"
+program_space (32 usages),"cross-cell-line agreement, same compound (median Pearson)",0.017,0.14,null approximately zero; roughly 10-20x the gene-space level

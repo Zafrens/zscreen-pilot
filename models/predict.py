@@ -29,6 +29,7 @@ Usage (library):
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import json
 import sys
 from pathlib import Path
@@ -41,9 +42,54 @@ from model_def import BB_SLOTS, N_BB_SLOTS, build_from_checkpoint
 MODEL_FILE_TEMPLATE = "context_token_trunk_reference_eval_v1_seed{seed}.pt"
 BB_TABLE_FILE = "bb_embedding_table.parquet"
 GOLDEN_FILE = "golden_predictions.json"
+# Match the CPU reduction configuration used to create the unchanged golden
+# values. This is a software thread count, not a minimum hardware core count.
+GOLDEN_CPU_THREADS = 12
 
 PAD_INDEX = 0  # absent slot
 UNK_INDEX = 1  # building-block ID not seen in the training folds
+
+
+def available_contexts(checkpoint) -> tuple[str, ...]:
+    """Return trained contexts with usable tokens and usage normalization.
+
+    Checkpoint vocabularies also contain transfer-only context metadata; those
+    entries are not supported by this public inference interface.
+    """
+    vocab = checkpoint["vocabulary"]
+    training_contexts = set(checkpoint["training"]["training_contexts"])
+    supported = []
+    for name, meta in vocab["context_tokens"].items():
+        if (name not in training_contexts or not meta.get("trained", False)
+                or meta.get("library") not in vocab["libraries"]
+                or meta.get("cell_line") not in vocab["cell_lines"]):
+            continue
+        scales = checkpoint.get("usage_scales", {}).get(name, {})
+        try:
+            mu = np.asarray(scales["mu"], dtype=np.float64)
+            sd = np.asarray(scales["sd"], dtype=np.float64)
+        except (KeyError, TypeError, ValueError):
+            continue
+        if (mu.shape == (32,) and sd.shape == (32,)
+                and np.isfinite(mu).all() and np.isfinite(sd).all()
+                and (sd > 0).all()):
+            supported.append(name)
+    return tuple(sorted(supported))
+
+
+@contextmanager
+def _golden_cpu_threads():
+    """Apply and always restore the reference intra-op thread configuration.
+
+    PyTorch's thread setting is process-wide. Run this diagnostic without
+    concurrent inference in the same process. Normal predictions are untouched.
+    """
+    previous = torch.get_num_threads()
+    try:
+        torch.set_num_threads(GOLDEN_CPU_THREADS)
+        yield
+    finally:
+        torch.set_num_threads(previous)
 
 
 def load_reference_model(models_dir: str | Path, seed: int = 0):
@@ -100,10 +146,12 @@ def predict_program_usage(model, checkpoint, bb_vec, context: str,
     single = isinstance(recipes, dict)
     if single:
         recipes = [recipes]
+    supported = available_contexts(checkpoint)
+    if context not in supported:
+        raise ValueError(
+            f"unsupported context {context!r}; choose a trained context with "
+            f"available normalization: {', '.join(supported)}")
     context_tokens = checkpoint["vocabulary"]["context_tokens"]
-    if context not in context_tokens:
-        raise KeyError(f"unknown context {context!r}; available: "
-                       f"{sorted(context_tokens)}")
     meta = context_tokens[context]
     vocab = checkpoint["vocabulary"]
     library_index = vocab["libraries"].index(meta["library"])
@@ -124,7 +172,15 @@ def predict_program_usage(model, checkpoint, bb_vec, context: str,
 
 
 def check_golden(models_dir: str | Path) -> bool:
-    """Reproduce golden_predictions.json with the shipped seed-0 checkpoint."""
+    """Check unchanged golden values using the reference CPU thread count.
+
+    Restores the caller's PyTorch intra-op thread count even on an exception.
+    """
+    with _golden_cpu_threads():
+        return _check_golden_with_reference_threads(models_dir)
+
+
+def _check_golden_with_reference_threads(models_dir: str | Path) -> bool:
     models_dir = Path(models_dir)
     golden = json.loads((models_dir / GOLDEN_FILE).read_text())
     tolerance = float(golden.get("tolerance", 2e-6))
@@ -143,7 +199,8 @@ def check_golden(models_dir: str | Path) -> bool:
                 print(f"MISMATCH {entry['context']} {entry['recipe']} {key}: "
                       f"max abs diff {diff:.3e}")
     print(f"golden predictions: {'OK' if ok else 'FAILED'} "
-          f"({len(golden['entries'])} entries, tolerance {tolerance})")
+          f"({len(golden['entries'])} entries, tolerance {tolerance}, "
+          f"CPU threads {GOLDEN_CPU_THREADS})")
     return ok
 
 
@@ -162,6 +219,10 @@ def main() -> None:
         parser.error("--context is required (or use --check-golden)")
     model, checkpoint, bb_vec = load_reference_model(args.models_dir,
                                                      seed=args.seed)
+    if args.context not in available_contexts(checkpoint):
+        parser.error(
+            f"unsupported context {args.context!r}; available trained contexts: "
+            f"{', '.join(available_contexts(checkpoint))}")
     recipe = {slot: getattr(args, slot) for slot in BB_SLOTS}
     out = predict_program_usage(model, checkpoint, bb_vec, args.context,
                                 recipe)

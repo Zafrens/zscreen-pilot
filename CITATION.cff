@@ -1,26 +1,21 @@
 cff-version: 1.2.0
-message: "Please cite this software and data release when using the package."
-title: "Z-Screen Program Package"
+message: "Please cite the exact package version and the original studies used in comparative analyses."
+title: "Z-Screen pilot data and reference models"
 type: dataset
-version: 1.5.1
-date-released: 2026-09-04
+version: 2.0.0
+date-released: 2026-09-16
+doi: 10.5281/zenodo.22003566
 authors:
   - name: "Zafrens, Inc."
     email: hello@zafrens.com
     website: "https://zafrens.com"
-license: "CC-BY-4.0"
-url: "https://doi.org/10.5281/zenodo.22003566"
+license:
+  - Apache-2.0
+  - CC-BY-NC-4.0
+url: "https://github.com/Zafrens/zscreen-pilot"
 repository-code: "https://github.com/Zafrens/zscreen-pilot"
-identifiers:
-  - type: doi
-    value: 10.5281/zenodo.22003566
-    description: Zenodo concept DOI. Always resolves to the latest version (code and documentation)
-  - type: url
-    value: "https://huggingface.co/datasets/Zafrens/zscreen-pilot"
-    description: Full package (arrays and model weights)
 abstract: >-
-  Per-compound 32-dimensional program-usage vectors and harmonized
-  6,000-gene response surfaces across eight combinatorial
-  library-cell-line contexts, the pinned shared program basis, an
-  evaluation-grade reference model, and imaging, therapeutic-hypothesis,
-  chemistry, same-well, and CRISPR-phenomimicry annexes.
+  Public combinatorial chemical recipes, processed cellular-response profiles,
+  shared RNA programs across eight contexts, reference model weights and code,
+  imaging and control measurements, and selected comparative analyses.
+  Component-specific licenses and source terms apply.

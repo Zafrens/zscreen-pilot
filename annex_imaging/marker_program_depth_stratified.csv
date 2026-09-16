@@ -1,0 +1,4 @@
+context,marker,program,depth_stratum,n_test,r_partial,r_raw
+zel024_hek293,p62,P16,all,,-0.065,-0.005
+zel024_hek293,p62,P16,low_depth,2337.0,-0.054,
+zel024_hek293,p62,P16,high_depth,1383.0,-0.091,-0.056

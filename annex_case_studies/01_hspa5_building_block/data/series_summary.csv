@@ -1,0 +1,2 @@
+context,unit_id,position,public_building_block_id,n_member_compounds,n_retained_cells,member_split_pearson,genetic_reference_target,score_method,reference_match_score,raw_target_rank
+zel039_aec7,bb0:BB_2371372935,bb0,BB_2371372935,1512,5373,0.9805847415116566,HSPA5,M3_k500,0.09200000017881393,3

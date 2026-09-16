@@ -5,17 +5,19 @@ against the manifest when it is present, and runs the schema checks
 (row-alignment, shapes, row counts, ID formats). Full mode additionally
 recalculates every manifested SHA-256 digest.
 
-When ``provenance/file_manifest.csv`` is not present yet (it is frozen at
-release), the manifest checks report SKIP with a clear message and the
-schema checks still run.
+This package requires both the checksum inventory and its envelope.
+Missing manifest metadata fails verification.
 """
 
 from __future__ import annotations
 
 import hashlib
+import json
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import unquote
 
 import numpy as np
 import pandas as pd
@@ -33,7 +35,17 @@ COMPOUND_COUNTS = {
     "zel039_aec7": 20813,
 }
 
-MANIFEST_PATH = Path("provenance") / "file_manifest.csv"
+MANIFEST_PATH = Path("file_manifest.csv")
+
+# Recognizable local tooling/OS artifacts are outside the distributed payload.
+# Keep this list explicit: arbitrary hidden files and user-added data must still
+# fail coverage. os.walk prunes these directories before visiting their contents.
+GENERATED_DIRECTORIES = {
+    "__pycache__", ".git", ".pytest_cache", ".ipynb_checkpoints", ".cache",
+    "__MACOSX", ".mypy_cache", ".ruff_cache",
+}
+GENERATED_FILES = {".DS_Store", "Thumbs.db", "desktop.ini"}
+MANIFEST_METADATA = {"MANIFEST.json", "file_manifest.csv"}
 
 CPD_RE = re.compile(r"^CPD_\d{12}$")
 BB_RE = re.compile(r"^BB_\d{10}$")
@@ -45,11 +57,12 @@ ROOT_FILES = (
     "LICENSE_OR_DATA_USE.md",
     "NOTICE",
     "LICENSES/Apache-2.0.txt",
-    "LICENSES/CC-BY-4.0.txt",
+    "LICENSES/CC-BY-NC-4.0.txt",
     "CITATION.cff",
     "pyproject.toml",
     "environment.lock",
     "verify.py",
+    "component_licenses.json",
 )
 
 CORE_STATIC_FILES = (
@@ -88,8 +101,8 @@ ANNEX_FILES = (
     "annex_imaging/zel024_compound_intensity.parquet",
     "annex_imaging/zel031_compound_intensity.parquet",
     "annex_imaging/zel039_imaging_latents.parquet",
-    "annex_imaging/reliability/embedding_reliability_audit.json",
-    "annex_imaging/reliability/marker_reliability_audit.json",
+    "annex_imaging/reliability/embedding_reliability.json",
+    "annex_imaging/reliability/marker_reliability.json",
     "annex_imaging/decomposition.csv",
     "annex_imaging/prediction_score_summary.csv",
     "annex_hypotheses/README.md",
@@ -145,6 +158,22 @@ EXAMPLE_FILES = (
     "examples/04_join_imaging.ipynb",
 )
 
+PACKAGE_FILES = (
+    "MANIFEST.json", "file_manifest.csv", "docs/REFERENCE_SOURCES.md",
+    "docs/DOWNLOAD.md", "docs/RESULTS.md", "docs/PILOT_RESULTS_REFERENCE.md",
+    "docs/ANALYSIS_ACCESS.md",
+    "atlas/original_clusters/members.parquet", "atlas/original_clusters/centroid_keys.csv",
+    "atlas/original_clusters/gene_centroids.npy", "atlas/original_clusters/program_centroids.npy",
+    "annex_case_studies/README.md",
+    "annex_case_studies/01_hspa5_building_block/README.md",
+    "annex_measurement_design/README.md",
+    "annex_measurement_design/evidence/pairing_summary.csv",
+    "annex_controls/README.md", "annex_controls/control_compound_map.csv",
+    "gallery/evidence/selected_examples.csv", "gallery/README.md",
+    "annotations/control_target_annotations.csv",
+)
+
+
 
 @dataclass
 class CheckResult:
@@ -161,10 +190,38 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _payload_paths(root: Path) -> set[str]:
+    """Inventory payloads without descending into local virtual environments.
+
+    A Python environment is recognized by its pyvenv.cfg marker, including a
+    .venv installed inside the package. Unrecognized .venv contents remain
+    subject to coverage checks. build/dist are generated only at the package
+    root; editable-install egg-info is allowed at the root or directly in src.
+    """
+    payloads = set()
+    for current, directories, files in os.walk(root, followlinks=False):
+        current = Path(current)
+        directories[:] = [
+            name for name in directories
+            if name not in GENERATED_DIRECTORIES
+            and not (current / name / "pyvenv.cfg").is_file()
+            and not (current == root and name in {"build", "dist"})
+            and not (current in {root, root / "src"} and name.endswith(".egg-info"))
+        ]
+        for name in files:
+            path = current / name
+            relative = path.relative_to(root).as_posix()
+            if (name not in GENERATED_FILES and relative not in MANIFEST_METADATA
+                    and path.is_file()):
+                payloads.add(relative)
+    return payloads
+
+
 def _required_files(root: Path) -> list[CheckResult]:
     expected = list(ROOT_FILES) + list(CORE_STATIC_FILES) + list(MODEL_FILES)
     expected += list(ANNEX_FILES) + list(PHENOMIMICRY_FILES)
     expected += list(DOC_FILES) + list(EXAMPLE_FILES)
+    expected += list(PACKAGE_FILES)
     for context in CONTEXTS:
         expected += [
             f"core/usages/usages_{context}.npy",
@@ -186,14 +243,36 @@ def _manifest_checks(root: Path, full: bool) -> list[CheckResult]:
     manifest = root / MANIFEST_PATH
     if not manifest.is_file():
         return [CheckResult(
-            "SKIP", "manifest",
-            f"{MANIFEST_PATH.as_posix()} not present (frozen at release); "
-            "skipping byte/hash checks, schema checks still run")]
+            "FAIL", "manifest", f"required {MANIFEST_PATH.as_posix()} not present")]
     frame = pd.read_csv(manifest)
     results = []
     failures = 0
+    if not {"relative_path", "bytes", "sha256"}.issubset(frame.columns):
+        return [CheckResult("FAIL", "manifest-schema", "missing required manifest fields")]
+    if frame.relative_path.duplicated().any():
+        return [CheckResult("FAIL", "manifest-unique", "duplicate file paths")]
+    # A shortened checksum list must not silently leave payloads unchecked.
+    actual = _payload_paths(root)
+    listed = set(frame.relative_path.astype(str))
+    if not listed or actual != listed:
+        return [CheckResult("FAIL", "manifest-coverage",
+                            f"unlisted payloads: {len(actual - listed)}; missing payloads: {len(listed - actual)}")]
+    envelope = json.loads((root / "MANIFEST.json").read_text(encoding="utf-8"))
+    envelope_ok = (envelope["manifest_sha256"] == _sha256(manifest)
+                   and envelope["manifested_file_count"] == len(frame)
+                   and envelope["manifested_bytes"] == int(frame.bytes.sum()))
+    results.append(CheckResult("PASS" if envelope_ok else "FAIL", "manifest-envelope",
+                               "CSV digest, file count and total bytes checked against MANIFEST.json"))
     for row in frame.itertuples(index=False):
         path = root / str(row.relative_path)
+        if path.is_absolute() and not path.resolve().is_relative_to(root.resolve()):
+            failures += 1
+            results.append(CheckResult("FAIL", "manifest-path", "path outside package root"))
+            continue
+        if ".." in Path(str(row.relative_path)).parts or Path(str(row.relative_path)).is_absolute():
+            failures += 1
+            results.append(CheckResult("FAIL", "manifest-path", "manifest paths must be relative and contain no parent traversal"))
+            continue
         if not path.is_file():
             failures += 1
             results.append(CheckResult(
@@ -226,7 +305,7 @@ def _schema_checks(root: Path) -> list[CheckResult]:
     for context in CONTEXTS:
         expected = COMPOUND_COUNTS[context]
         usage = np.load(root / "core" / "usages" / f"usages_{context}.npy")
-        surface = np.load(root / "core" / "surfaces" / f"surfaces_{context}.npy")
+        surface = np.load(root / "core" / "surfaces" / f"surfaces_{context}.npy", mmap_mode="r", allow_pickle=False)
         u_comp = pd.read_parquet(
             root / "core" / "usages" / f"usages_{context}_compounds.parquet")
         s_comp = pd.read_parquet(
@@ -276,9 +355,9 @@ def _schema_checks(root: Path) -> list[CheckResult]:
     record(ok, "schema:cluster-census",
            f"{len(census)} clusters, max coherence_q {census['coherence_q'].max():.5f}")
 
-    # Ensemble rescoring panel: 43 control pairs, 11 consistent.
+    # Curated ensemble panel includes supported compound-target annotations.
     panel = pd.read_csv(root / "annex_phenomimicry" / "ensemble_rescoring_panel.csv")
-    ok = len(panel) == 43 and int(panel["consistent_pair"].sum()) == 11
+    ok = len(panel) == 42 and int(panel["consistent_pair"].sum()) == 10
     record(ok, "schema:rescoring-panel",
            f"{len(panel)} pairs, {int(panel['consistent_pair'].sum())} consistent")
 
@@ -301,6 +380,90 @@ def _schema_checks(root: Path) -> list[CheckResult]:
     return results
 
 
+def _notebook_checks(root: Path) -> list[CheckResult]:
+    """Inspect the distributed notebook code and saved outputs directly."""
+    results = []
+    for relative in EXAMPLE_FILES:
+        notebook = json.loads((root / relative).read_text(encoding="utf-8"))
+        code = [cell for cell in notebook.get("cells", [])
+                if cell.get("cell_type") == "code" and "".join(cell.get("source", [])).strip()]
+        outputs = [output for cell in code for output in cell.get("outputs", [])]
+        ok = (notebook.get("nbformat") == 4 and bool(code) and bool(outputs)
+              and all(isinstance(cell.get("execution_count"), int)
+                      and cell["execution_count"] > 0 for cell in code)
+              and all(output.get("output_type") != "error" for output in outputs))
+        results.append(CheckResult("PASS" if ok else "FAIL", f"notebook:{Path(relative).stem}",
+                                   f"{len(code)} code cells with execution counts, {len(outputs)} saved outputs; "
+                                   "checks stored content without rerunning code"))
+    return results
+
+
+def _document_link_checks(root: Path) -> list[CheckResult]:
+    """Check that local Markdown links resolve within this standalone package."""
+    failures = []
+    checked = 0
+    for relative in sorted(_payload_paths(root)):
+        if not relative.endswith(".md"):
+            continue
+        source = root / relative
+        content = source.read_text(encoding="utf-8")
+        # Fenced examples are prose/code, not rendered document links.
+        content = re.sub(r"```.*?```", "", content, flags=re.DOTALL)
+        targets = re.findall(r"!?\[[^\]]*\]\(([^)]+)\)", content)
+        targets += re.findall(r"^\s*\[[^\]]+\]:\s*(.+)$", content, flags=re.MULTILINE)
+        targets += re.findall(r"(?:href|src)=[\"']([^\"']+)[\"']", content)
+        for raw_target in targets:
+            target = raw_target.strip()
+            if not target:
+                continue
+            target = target[1:target.index(">")] if target.startswith("<") and ">" in target else target.split()[0]
+            if target.startswith(("https://", "http://", "mailto:", "data:", "#")):
+                continue
+            target = unquote(target.split("#", 1)[0].split("?", 1)[0])
+            if not target:
+                continue
+            checked += 1
+            destination = (source.parent / target).resolve()
+            if not destination.is_relative_to(root) or not destination.exists():
+                failures.append(f"{relative}: {target}")
+    return [CheckResult("FAIL" if failures else "PASS", "document-links",
+                        "; ".join(failures) if failures else
+                        f"{checked} local Markdown links resolve inside the package")]
+
+
+def _package_schema_checks(root: Path) -> list[CheckResult]:
+    """Validate the distributed pilot objects."""
+    results = []
+    def record(ok: bool, name: str, detail: str) -> None:
+        results.append(CheckResult("PASS" if ok else "FAIL", f"package:{name}", detail))
+
+    members = pd.read_parquet(root / "atlas/original_clusters/members.parquet")
+    keys = pd.read_csv(root / "atlas/original_clusters/centroid_keys.csv")
+    sizes = members.groupby(["context", "cluster_id"]).size()
+    expected = keys.set_index(["context", "cluster_id"]).n_members
+    record(len(keys) == 1007 and len(members) == 5346
+           and keys.centroid_row.tolist() == list(range(1007))
+           and not keys.duplicated(["context", "cluster_id"]).any()
+           and sizes.reindex(expected.index).equals(expected.rename(None)),
+           "original-atlas", "1,007 keyed clusters and 5,346 memberships; member counts align")
+    genes = np.load(root / "atlas/original_clusters/gene_centroids.npy", mmap_mode="r", allow_pickle=False)
+    programs = np.load(root / "atlas/original_clusters/program_centroids.npy", mmap_mode="r", allow_pickle=False)
+    record(genes.shape == (1007, 6000) and programs.shape == (1007, 32),
+           "centroid-axes", "Original cluster centroids align with 6,000 genes and 32 programs")
+    pairing = pd.read_csv(root / "annex_measurement_design/evidence/pairing_summary.csv")
+    record(len(pairing) == 8 and set(pairing.train_size) == {350, 1000, 3000, 8000},
+           "paired-result-table", "Stored result: four training sizes and two pairing conditions")
+    gallery = pd.read_csv(root / "gallery/evidence/selected_examples.csv")
+    record(len(gallery) == 2 and gallery.public_compound_id.is_unique,
+           "gallery", "Two real crop examples with explicit public compound linkage")
+    annotation = pd.read_csv(root / "annex_phenomimicry/validation_empirical_p.csv")
+    record(len(annotation) == 2074, "curated-calibration", "2,074 curated query rows")
+    controls = pd.read_csv(root / "annex_controls/control_compound_map.csv")
+    record(len(controls) == 35 and controls.public_compound_id.is_unique,
+           "control-map", "35 named controls have unique public keys")
+    return results
+
+
 def verify_package(root: str | Path, full: bool = False) -> list[CheckResult]:
     """Run all verification checks against the package rooted at ``root``."""
     root = Path(root).resolve()
@@ -309,6 +472,9 @@ def verify_package(root: str | Path, full: bool = False) -> list[CheckResult]:
         return results
     results += _manifest_checks(root, full=full)
     results += _schema_checks(root)
+    results += _package_schema_checks(root)
+    results += _notebook_checks(root)
+    results += _document_link_checks(root)
     return results
 
 

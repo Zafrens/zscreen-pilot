@@ -1,0 +1,56 @@
+{
+  "scope": "Current Z-Screen pilot data, models, software and processed comparative results",
+  "defaults": [
+    {
+      "paths": [
+        "core/**",
+        "models/**",
+        "annex_controls/**",
+        "annex_imaging/**",
+        "annex_same_well/**",
+        "annex_chemistry/**",
+        "annex_clusters/**",
+        "atlas/original_clusters/**",
+        "gallery/**",
+        "annex_measurement_design/**"
+      ],
+      "license": "CC-BY-NC-4.0",
+      "exception": "Python source Apache-2.0"
+    },
+    {
+      "paths": [
+        "src/**",
+        "**/*.py"
+      ],
+      "license": "Apache-2.0"
+    }
+  ],
+  "processed_reference_results": [
+    {
+      "paths": [
+        "annex_case_studies/01_hspa5_building_block/**",
+        "annex_case_studies/02_partner_responses/**"
+      ],
+      "source": "Schnitzler et al. 2024/GSE210681",
+      "scope": "genetic-correspondence fields and related presentation; own chemical support/identifiers remain separate",
+      "source_status": "No explicit submitter license for underlying data is identified here; consult the original provider."
+    },
+    {
+      "paths": [
+        "annex_case_studies/03_adaptive_replay/**"
+      ],
+      "source": "Xaira X-Atlas/Orion and Schnitzler et al. GSE210681",
+      "scope": "HEK reward-derived portions retain CC-BY-NC-SA-4.0; AEC7 portions retain above source status; original recipe IDs/code are separate"
+    },
+    {
+      "paths": [
+        "annex_phenomimicry/**",
+        "annex_hypotheses/**"
+      ],
+      "scope": "existing processed multi-reference results with source citations; no underlying genetic-reference arrays included",
+      "notice": "docs/REFERENCE_SOURCES.md"
+    }
+  ],
+  "source_notice": "docs/REFERENCE_SOURCES.md",
+  "software_notice": "LICENSES/Apache-2.0.txt"
+}

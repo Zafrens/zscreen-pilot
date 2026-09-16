@@ -1,12 +1,7 @@
-"""Z-Screen Program Package helper library.
+"""Z-Screen pilot data loaders and package verification.
 
-Thin loaders and verification for the package's data layers. No model
-training code; the reference model lives in models/ with its own
-self-contained inference script.
+Reference model inference is provided in models/.
 """
-
 from __future__ import annotations
-
-__version__ = "1.5.1"
-
+__version__ = "2.0.0"
 __all__ = ["__version__"]

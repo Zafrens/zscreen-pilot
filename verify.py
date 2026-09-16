@@ -18,7 +18,7 @@ from zscreen_program_package.verify import verification_passed, verify_package  
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Verify the Z-Screen Program Package")
+    parser = argparse.ArgumentParser(description="Verify the Z-Screen pilot data and model package")
     parser.add_argument("--full", action="store_true",
                         help="recalculate every manifested SHA-256 digest")
     arguments = parser.parse_args()

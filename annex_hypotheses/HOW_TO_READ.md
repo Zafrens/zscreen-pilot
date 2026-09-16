@@ -1,73 +1,31 @@
-# How to read the hypothesis tables
+# Reading the hypothesis tables
 
-These tables convert the program and grammar layers into leads that
-can be taken into an experiment. Each row states the evidence that
-put it on the list, the null against which that evidence was judged,
-and, for the distilled leads, a measurement that would kill or
-confirm the claim. The distilled entry point is `anchor_leads.csv`;
-the 1,027-row ledger is the complete mining output and is
-correspondingly coarser.
+## Begin with the chemical unit
 
-## The unit of claim is the building block, not the compound
+A building-block effect summarizes compounds sharing a component at a recipe position. A two-component series narrows that group. These are useful units for this combinatorial pilot; a family association is not a confirmed effect in every individual compound. Public IDs identify recipe relationships without assigning undisclosed chemical structures.
 
-Claims are made at the level of **building-block (BB) levels and bb
-grammar**, "compounds built on `BB_2085420374` tend to induce a
-heat-shock program", not at the level of individual compounds. The
-libraries repeat blocks across hundreds to thousands of carriers, so
-bb-level effects are the strongest, most reproducible layer. A
-single-compound reading of these tables is a candidate for
-confirmation on that compound's raw measurements.
+## Read the score with its comparison
 
-## Specificity lives in match rank and identity
+Coherence measures agreement among the displayed profiles. Null statistics compare that agreement with the specified random sets. Rank identifies which reference is most similar within the tested panel. None of these statistics alone establishes a molecular target.
 
-The level→control match p-values come from a gene-label permutation
-null that is deliberately weak: all 35 controls are strong
-perturbations sharing broad program axes, so most levels match some
-control at p ≤ 0.01 (88-98% of levels, depending on context). A
-small p-value therefore certifies only that a program-level
-alignment exists. The informative content of a match is **which**
-control ranks first and **how** the match identity converges across
-independent analyses (neighborhood enrichment, direct effect-vector
-alignment, unsupervised program recovery). The `weak_null` caveat
-flag marks every row where this applies.
+The gene-label permutation for level-to-control matching is permissive: 88–98% of levels match some control at p≤0.01. Read the matched control, response genes, depth composition and shared model structure together. Neighborhoods, clusters and building-block effect vectors can reuse the same ridge-derived profiles; agreement between them is not independent biological replication. A printed p=0.000 under a finite number of permutations does not mean zero probability.
 
-## Context-specific reading rules
+## Keep the representations separate
 
-- **zel039_aec7** similarity analyses used **tier-matched nulls**
-  throughout. Compounds share a sequencing-depth-tier structure that
-  inflates naive similarity; every zel039 coherence, neighborhood,
-  and imaging number in this annex was computed against null sets
-  matched on size and depth tier.
-- **zel024_hek293** tables are **grammar-level**. That context's
-  surfaces are pure bb-backbone (per-compound own-data weight ≈ 0),
-  so two-position series coherence and neighborhood enrichment hold
-  essentially by construction (1,823/1,827 series pass even label
-  permutation). Use zel024 rows for series discovery and annotation;
-  they are marked `grammar_level` / `triage_grade`.
-- **zel028 contexts** support pooled, level-level reads only
-  (singleton measurements); rows from these contexts carry the
-  `singleton` caveat.
-- Depth-tier skew can masquerade as signal at series level; check
-  tier composition columns before trusting any single series.
+- **AEC7/ZEL039:** inspect the size/depth-matched nulls and each candidate's depth-tier composition. Matching a broad tier does not remove every measurement difference.
+- **HEK293/ZEL024 SAR:** `grammar_level` identifies recipe-backbone profiles with approximately zero individual own-data weight in that analysis. Coherence in those surfaces is evidence about the representation, not separate replication of each compound response.
+- **ZEL028 contexts:** singleton measurements support pooled component-level reads; individual-compound confirmation requires further measurements.
+- **Program labels:** the `program_atlas.csv` labels have their own namespace. Read [INTERPRETATION_NOTES.md](INTERPRETATION_NOTES.md) before joining them to core P01–P32 coordinates.
 
-## External concordance
+## Read external correspondence by method and context
 
-Compound ↔ CRISPR-knockout concordance lives in
-`annex_phenomimicry/`: 43 knockout signature sets from 10
-perturb-seq datasets, calibrated against a 1,000-draw random-target
-empirical null with a hub-matched companion null. Recovery of known
-pharmacology concentrates in a small set of control → target pairs
-with multi-cell, multi-dataset support (STC-15/STM2457→METTL3,
-MSC1094308→DOT1L, GSK126→EZH2, GCN2-IN-7→EIF2AK4), named
-individually in that annex. The dominant background is a
-generic RNA/stress hub axis; check `hub_flag` before treating any
-hit as specific.
+[annex_phenomimicry](../annex_phenomimicry/README.md) contains cosine/consensus and ensemble results against external perturbation references. Its query rows reuse controls and reference datasets. They are not independent cells or experiments, and the ledger’s signed-rank scores are not interchangeable with these cosine/consensus or ensemble scores.
 
-## What this annex does not contain
+Read [control target annotations](../annotations/README.md) together with
+the notes keyed by `hypothesis_id` in [interpretation_notes.json](interpretation_notes.json).
 
-No table here supports a BRD4-linked mechanism; BRD4 appears in the
-package only as a marker channel in the zel031 imaging panel. There
-are no compound-level drug claims, no validated targets, and no
-clinical-relevance statements. The `kill_confirm_experiment` column
-is the intended next step for each lead: every flagship hypothesis
-states the experiment that would kill or confirm it.
+## Use the proposed experiment as the next decision
+
+`kill_confirm_experiment` records a proposed follow-up, not completed validation. Tiers A/B/C and labels such as `hypothesis_anchor_validated` describe table prioritization and supporting evidence; they are not claims of molecular target validation. The present package supports response-family and mechanism hypotheses; target engagement, therapeutic activity and clinical claims need their own evidence.
+
+Full upstream reconstruction is separate from this processed annex. [Methods and input access](../docs/ANALYSIS_ACCESS.md) · [Reference sources](../docs/REFERENCE_SOURCES.md).

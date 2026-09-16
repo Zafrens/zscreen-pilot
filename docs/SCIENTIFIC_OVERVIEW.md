@@ -1,175 +1,90 @@
 # Scientific overview
 
-What the data are, what the program layer is, and why the package is
-built the way it is. Package-specific terms are defined at first use;
-the full registry is `docs/terminology.json`. The design argument and
-the comparison to existing atlases are in `docs/WHY_THIS_MATTERS.md`.
+Z-Screen combines a chemical recipe with measurements of the resulting cellular response. This guide describes the distributed pilot data, reference model and selected supporting analyses. Detailed transformations and evaluation settings are linked from their respective sections.
 
-## The screens
+## Chemical design and core RNA data
 
-Z-Screen profiles combinatorial chemistry libraries by few-cell RNA
-sequencing in **nanowells**. Compounds are assembled from a fixed
-vocabulary of chemical **building blocks** (BBs), so a compound is
-fully described by its **recipe**: which block sits at which position
-(`bb0`-`bb4`). Building blocks carry public, opaque identifiers
-(`BB_##########`) throughout this package; structures are not included
-(see `annex_chemistry/README.md` for the NDA path).
+Compounds are assembled from recurring chemical building blocks at defined positions. A public recipe specifies the block at each occupied position, `bb0`–`bb4`. The [recipe table](../core/recipes.parquet) contains 162,914 unique public compound IDs. The eight library–cell contexts contain 190,699 profiles in total:
 
-A **context** is one library × cell-line combination. The package
-covers eight contexts:
-
-| context | cell line | compounds |
+| Context | Cell background | Compound-context profiles |
 |---|---|---:|
-| zel024_hek293 | HEK293 | 13,914 |
-| zel024_h1650 | H1650 | 10,686 |
-| zel028_hek293 | HEK293 | 61,396 |
-| zel028_a549 | A549 | 40,622 |
-| zel028_h1650 | H1650 | 25,906 |
-| zel031_a549 | A549 | 8,321 |
-| zel031_thp1 | THP1 | 9,041 |
-| zel039_aec7 | AEC7 endothelial | 20,813 |
+| `zel024_hek293` | HEK293 | 13,914 |
+| `zel024_h1650` | H1650 | 10,686 |
+| `zel028_hek293` | HEK293 | 61,396 |
+| `zel028_a549` | A549 | 40,622 |
+| `zel028_h1650` | H1650 | 25,906 |
+| `zel031_a549` | A549 | 8,321 |
+| `zel031_thp1` | THP1 | 9,041 |
+| `zel039_aec7` | AEC7 endothelial | 20,813 |
 
-(Row counts: `core/splits/fold_assignments.parquet`.) Because
-libraries recur across cell lines, many compounds are measured in
-several contexts, which is what makes cross-context analysis possible.
-A named-control panel of 35 known compounds was measured alongside the
-screens and is used as a validation layer in the hypothesis annex; the
-same 35 compounds, with paired image and RNA latents, are in
-`annex_same_well/`.
+Source: [context and compound table](../core/splits/fold_assignments.parquet). A compound can occur in more than one cellular context.
 
-Relative to the grids the same libraries define, these screens are a
-pilot. The `zel028` library is an 87 × 88 × 88 grid (673,728 recipes),
-of which 117,950 are measured. Across all four libraries the design
-grids × the cell lines already screened comprise about 2.1 million
-compound-context states, eleven times the number of measurements
-released here. That expansion, and why a new building block is the
-incremental object, is developed in `docs/WHY_THIS_MATTERS.md`.
+The core RNA pipeline pools nanowell counts by compound and device, normalizes for total counts, subtracts the mean response on each device, and averages across devices. A **pseudobulk** is a count profile formed by pooling wells. A **device** is a measurement batch. The released harmonized matrices use a common 6,000-gene panel. [Core methods](METHODS.md) · [Gene panel](../core/surfaces/harmonized_6000_genes.parquet).
 
-## The program layer
+**Cell-line naming:** the Zafrens cell line is **AEC7**. AEC7 is closely related to **teloHAEC**, the cell line used for the external genetic reference. The comparison links AEC7 chemical-response measurements to teloHAEC genetic-perturbation profiles. External reference IDs retain their source names.
 
-Each context's measured data is a compound × gene matrix. The package
-summarizes every such matrix on a shared set of 32 **programs**:
-coordinated gene-expression patterns, learned unsupervised (by
-semi-NMF, a variant of non-negative matrix factorization in which gene
-loadings are non-negative but usage coordinates are free-sign) from
-the stacked screens. The 32 programs are the **shared basis**; a
-compound's **usage** of a program is how strongly that program is
-expressed in its response, so each compound in each context becomes a
-point in a 32-number **program-usage space**.
+### Shared transcriptional programs
 
-The program layer is a design choice, not a compression convenience,
-and it concentrates signal:
+The 32 core programs are coordinated gene-expression patterns learned from the harmonized responses using semi-nonnegative matrix factorization. This method represents a response as a weighted combination of shared patterns. A **usage** is one of those weights. Each compound-context response therefore has both a gene-level profile and 32 program coordinates.
 
-- Cross-context structure is 10-20× stronger in program space than
-  gene by gene (the same chemistry moved to a second cell line is far
-  more visible in its 32 program coordinates than in any individual
-  gene).
-- Building-block-level effects, the effect of one block averaged over
-  all compounds carrying it, transfer across contexts at 2-3× the
-  per-compound level: pooling over the recurring substructure is
-  exactly what the combinatorial design is for.
-- Image models and chemistry models both predict the 32 usages far
-  better than they predict genes (image→programs reaches r = 0.135
-  while direct image→gene prediction reaches 0.014-0.032 decoded
-  mcPearson, 6-14% of the ~0.24 oracle ceiling; evidence:
-  `annex_imaging/prediction_score_summary.csv`,
-  `annex_imaging/decode_through_comparison.csv`).
+The same pinned basis defines `P01`–`P32` across the core contexts. The [hypothesis annex](../annex_hypotheses/README.md) adds biological interpretations, recurring components and controls. Its [annotation label namespaces](../annex_hypotheses/INTERPRETATION_NOTES.md) must not be treated as direct current-basis indices. The [basis registry](../core/basis/basis_registry.json) specifies the exact released basis; a 12-program companion supports coarser analyses.
 
-The program layer sits on top of two measured core layers, both
-included:
+The original recipe-to-program model and benchmark use fixed compound folds. Fold 0 was excluded from basis fitting and model training. Its checkpoints, predictions, and evaluation tables remain a reusable reference for learning from recipes. [Model guide](../models/README.md) · [Benchmark](../core/benchmark/README.md) · [Model and projection methods](METHODS.md).
 
-- **Harmonized 6,000-gene surfaces** (`core/surfaces/`): every context
-  on one shared 6,000-gene panel, so cross-context modeling never
-  touches per-context gene panels.
-- **Program usages** (`core/usages/`): per-compound coordinates
-  against the pinned shared basis (`core/basis/`,
-  `shared_program_basis_v1`).
+## Selected response and learning examples
 
-## Design choices
+### A recurring component and a coherent response
 
-**Device centering.** Wells are measured in physical batches called
-devices. Each profile is normalized (log1p-CP10k; see
-`docs/METHODS.md`) and each device's across-compound mean profile is
-subtracted. This removes the shared abundance shape and additive
-device shift, and it is the optimal additive device correction for
-this design.
+The ZEL039 building-block family analysis pools cells from compounds sharing public building block `BB_2371372935`. The family contains 1,512 compounds and 5,373 retained cells. Its aggregate RNA response correlates at 0.9806 between disjoint halves of member compounds and has an HSPA5 genetic-response correspondence. These aggregate effects were calculated from source counts, separately from the core program projection. [Case study and exact summary](../annex_case_studies/01_hspa5_building_block/README.md).
 
-**Per-context depth layer.** Sequencing depth couples into expression
-and is handled per context. The methods used are
-`within_compound_depth_standardization_v1` for `zel024_hek293` and
-`zel039_aec7` (within-compound depth ladders);
-`context_covariate_depth_adjustment_v1` for `zel031_a549`,
-`zel028_hek293`, and `zel028_a549`; device-centered only for the
-three newer contexts (`zel024_h1650`, `zel028_h1650`, `zel031_thp1`),
-where across-compound RNA yield may itself be treatment biology and
-no within-compound identification exists. `docs/METHODS.md` step 5
-gives the mapping and rationale.
+### Partner-defined response differences
 
-**Correction-free shared program space.** The shared basis and usages
-in this package are built on the device-centered harmonized surfaces.
-Depth-corrected targets reconstruct through the shared 32-program
-bottleneck as well as device-centered ones, and a fold-nested
-depth-regressed target variant was flat-to-worse across all
-context × architecture cells (evidence:
-`core/benchmark/correction_arm.csv`). Depth handling therefore lives
-in the per-context target and decoder side of any downstream model;
-the shared program space itself is correction-free.
+Two groups within that family share `bb0` and differ at `bb1`. Their full-group and member-half comparisons favor HSPA5 with partner P1 and TRAF2 with partner P2. The case-study tables preserve all four core/partner groups examined in the compound-family analysis. A separate matched analysis found measurement-support imbalance and an inconclusive 18-pair common-stratum sensitivity; the per-coordinate HSPA5 effect is uncertain. The aggregate difference remains exploratory, and a causal partner-dependent mechanism switch has not been established. [Case study and scores](../annex_case_studies/02_partner_responses/README.md).
 
-**Pinned basis, held-out fold 0.** The basis is pinned by hash
-(`core/basis/basis_registry.json`) and was fit on training folds 1-4
-only, with fold 0 untouched by any fitting, so collaborators inherit
-a clean test bed. Usage coordinates are valid only against the pinned
-basis; a refit would rotate program identities.
+### Learning from successive measurements
 
-## The imaging modality
+The retrospective HSPA5 and METTL3 campaigns hide existing response scores, reveal selected compounds in batches, and update a recipe-based predictor. Each strategy starts from the same 200 compounds and receives six further batches of 200. The comparison measures recovery of a fixed high-score set at equal selection budgets. The campaign split and response definitions are separate from the core model's five-fold split. [Case study](../annex_case_studies/03_adaptive_replay/README.md) · [Short methods and additional inputs](ANALYSIS_ACCESS.md).
 
-Two libraries (`zel024`, `zel031`) were imaged by high-content
-microscopy and a third (`zel039`) carries per-detection image latents
-(`annex_imaging/`). Image embeddings predict the 32 program usages at
-levels that survive pairing-null tests where the cell line matches
-the RNA context, and the per-program variance decomposition shows
-imaging is largely shared with chemistry, with a small image-only
-component on stress/proteostasis programs and marker-level biology
-the RNA layer does not express. All prediction dumps are fold-clean.
-Details, the circularity rule (markers are targets, never features),
-and the panel-difference note are in `annex_imaging/README.md`.
+## Which representation should I use?
 
-## The hypothesis and chemistry layers
+| Layer | Biological or analytical unit | Representation | Useful for |
+|---|---|---|---|
+| Core RNA | Compound × library–cell context | Device-centered response on 6,000 genes; projection onto shared `P01`–`P32` | Comparing recipes, programs, and contexts; reference-model development |
+| Family aggregate responses | Building-block or pair group within a context | Response rebuilt from source counts, with member-compound halves | Reproducibility of chemical-family effects and partner comparisons |
+| Signed top-gene comparison (selected results only) | Chemical or aggregate response against a specified genetic reference | Signed top-gene correspondence on context-specific aligned gene axes: 36,591 genes for AEC7 and 25,375 for HEK293 | Interpretation of defined objectives; full score inputs are outside this package |
+| Library imaging | Compound, detection, or other unit specified by the table | Image embeddings, marker intensities, or native image features | Relating morphology and markers to chemistry and RNA |
+| Same-well experiment | (`batch_id`, `well_id`) | 448 image features and native RNA encoder coordinates `D00`–`D31` | Joint image/RNA analysis at a directly paired well |
 
-`annex_hypotheses/` turns the program and grammar layers into tiered
-leads: 16 distilled anchor leads with kill/confirm experiments, the
-26-group program atlas, a sharp-SAR shortlist, and the complete
-1,027-row mining ledger labeled triage-grade on its face.
-`annex_chemistry/` holds the chemistry-facing results:
-structure-based models generalize to never-before-synthesized
-building blocks at parity with identity-based models in the deepest
-context (within 0.018 in the other contexts), structure-based
-attribution is validated against measurement, and three
-public-identifier SAR tables enumerate candidate series and
-single-block effects. Both annexes generate hypotheses;
-`annex_hypotheses/HOW_TO_READ.md` is the reading guide.
+The gene axes and normalization are part of a response's definition. Replacing the family-analysis bridge axes with the core 6,000-gene panel changes the analysis. Likewise, same-well `D00`–`D31` and core `P01`–`P32` belong to different learned representations. A genetic match identifies correspondence between RNA responses; direct molecular binding and useful biological function are separate experimental questions.
 
-## Signal strength by analysis level
+## Chemical and biological organization
 
-Signal strength differs by analysis level; this is why the package
-routes interpretation to the program and building-block levels.
-Values are from the reliability audits in
-`annex_imaging/reliability/` and from
-`core/benchmark/program_signal_concentration.csv`:
+The original atlas contains 1,007 chemical response families across eight contexts. Its graph combines shared recipe components, structural similarity, and program similarity. The families were formed without target labels; 855 have at least one significant pathway annotation. Use `(context, cluster_id)` to identify a family. [Verified family memberships and centroids](../atlas/original_clusters/README.md).
 
-| analysis level | typical scale | reading |
-|---|---|---|
-| program level (32 usages) | cross-context structure 10-20× gene space | strongest layer; headline claims live here |
-| building-block level (pooled over carriers) | split-half ~0.5-0.58 | pooled, level-level claims supported |
+The [chemistry annex](../annex_chemistry/README.md) contains component effects, model attribution, series, and response-cliff tables. The [hypothesis annex](../annex_hypotheses/README.md) contains a program atlas, selected biological examples, and a broader follow-up ledger. These are complementary ways to move from a broad response pattern to specific chemistry.
 
-Unsupervised structure sits at the same aggregate level: an
-analog-family census finds 1,007 clusters across the eight contexts
-(3-137 members, median 4), every cluster coherent at q <= 0.01
-against 200 size-matched random compound sets (median coherence
-z = 4.8).
+## Genetic references and controls
 
-Per-compound profiles are inputs to these aggregates, not standalone
-calls. Additional wells on compounds that are
-presently singletons move claims from brick-level toward
-molecule-level; that is one of the three scaling directions in
-`docs/WHY_THIS_MATTERS.md`.
+The [phenomimicry annex](../annex_phenomimicry/README.md) supplies processed compound–genetic correspondence and calibration results. The HSPA5 and METTL3 learning examples use a distinct signed top-gene scoring representation. Full genetic-reference matrices, compact signatures and score-reconstruction inputs are outside this pilot package; [ANALYSIS_ACCESS.md](ANALYSIS_ACCESS.md) explains the methods and source access. The MSC1094308 annotation is [VCP/p97 and VPS4B](../annotations/README.md); known-target calibration uses the stated target assignments.
+
+The [controls annex](../annex_controls/README.md) contains 35 named compounds across five contexts: 256,052 wells summarized into 1,259 control-by-batch pseudobulks. It supplies core-panel responses, program usages, counts, and batch metadata. These measurements support interpretation of response patterns and studies of measurement design.
+
+## Imaging and paired measurements
+
+The [library imaging annex](../annex_imaging/README.md) supplies embeddings, marker intensities, and available detection-level features. Its RNA comparisons use the shared core programs where specified in the evaluation table.
+
+The separate [same-well study](../annex_same_well/README.md) contains 11,435 wells from two batches and 35 controls. Each well has an image summary and native RNA encoder coordinates. Image-to-RNA prediction reaches mean per-coordinate Pearson correlation 0.277 in the reported five-fold evaluation and 0.238 when each control is held out in turn. The [learning curve](../annex_same_well/evidence/learning_curve.csv) varies the **total wells sampled into each cross-validation dataset**. It provides an empirical starting point for asking how a larger paired dataset improves the cross-modal map.
+
+### Selected measurement-design results
+
+At a fixed 2,287-well test set, the [pairing comparison](../annex_measurement_design/README.md) trains on 350, 1,000, 3,000 or 8,000 paired wells. It removes control/batch means using training wells only. Mean residual RNA-coordinate correlation rises from 0.046 to 0.125 with exact pairing; within-control/batch shuffled pairing stays near zero. At 8,000 training wells the exact-pair mean R² is only 0.0029, so predictive gain should be described with that modest absolute fit.
+
+The control study aggregates additional measured batches and compares each aggregate with a fixed, disjoint batch set. Agreement improves across four contexts; HEK293 clone supplies a single-batch comparison only; the sampling unit is a batch, not an individual cell. This is a within-source measurement-design result. [All curves and split tables](../annex_measurement_design/README.md).
+
+The [gallery](../gallery/README.md) supplies two genuine ZS13 five-channel microscopy crops linked by public compound ID to HEK293 RNA profiles. The image source does not document its cell line; those examples are compound-linked observations, not a same-well RNA/image pair. The separate same-well dataset supplies the direct pairing evidence above.
+
+## Reuse in new analyses
+
+Use the [data dictionary](DATA_DICTIONARY.md) for schemas and matrix alignment, [core methods](METHODS.md) for transformations, and [reproduction guide](REPRODUCTION.md) for original worked examples. The [case-study data guide](../annex_case_studies/DATA_GUIDE.md) links the featured figures to exact values and source hashes. The [plain-language guide](../annex_case_studies/CONCEPTS.md) explains the computational ideas.
+
+Versioned IDs, response definitions and figure inputs let new analyses build on the same pilot objects. Upstream genetic-response reconstruction requires the additional inputs described in [ANALYSIS_ACCESS.md](ANALYSIS_ACCESS.md).

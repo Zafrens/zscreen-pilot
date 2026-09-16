@@ -1,0 +1,42 @@
+{
+  "source_shape": [
+    10661,
+    5,
+    340,
+    340
+  ],
+  "source_image_cell_line": null,
+  "source_library": "ZEL024",
+  "image_rna_link": "public compound ID and library; RNA context zel024_hek293",
+  "raw_values_preserved": true,
+  "crops": [
+    {
+      "public_compound_id": "CPD_834100682076",
+      "source_panel": "ZS13",
+      "hdf5_dim_0_index": 2208,
+      "array_path": "data/ZS13_crop_02208.npy",
+      "shape": [
+        5,
+        340,
+        340
+      ],
+      "dtype": "float32",
+      "file_sha256": "488751470fbfc08b4f6f95c06fc17dd1d9d207792797120f09caa85c16342c60",
+      "raw_values_sha256": "dc96421b460d69c4f5ba34387e7d64bb0b0bdacb36d13051fc31854bfbce1f31"
+    },
+    {
+      "public_compound_id": "CPD_984699400763",
+      "source_panel": "ZS13",
+      "hdf5_dim_0_index": 9607,
+      "array_path": "data/ZS13_crop_09607.npy",
+      "shape": [
+        5,
+        340,
+        340
+      ],
+      "dtype": "float32",
+      "file_sha256": "8abf6ffe6b0ef6b0099dcc27142bf521bf130b852eaf1958f8e8208ef48c9644",
+      "raw_values_sha256": "567bd17490d24a73df4a2b26c6daf3a50339f313c8cb8d7a1a0cd2139fd5ed79"
+    }
+  ]
+}

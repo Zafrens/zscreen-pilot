@@ -1,0 +1,6 @@
+channel,lower_display_value,upper_display_value
+Brightfield,13.0,211.0
+p21 / CDKN1A,23.0,255.0
+Phalloidin,2.0,255.0
+DAPI,3.0,143.0
+p62 / SQSTM1,25.0,165.0

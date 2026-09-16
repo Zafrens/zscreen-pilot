@@ -1,0 +1,120 @@
+{
+  "libraries": {
+    "ZEL024": {
+      "n_fovs": 23695,
+      "n_compounds": 10129,
+      "markers": {
+        "brightfield": {
+          "split_half_sb": 0.2939
+        },
+        "dapi": {
+          "split_half_sb": 0.4685
+        },
+        "p21": {
+          "split_half_sb": 0.4277
+        },
+        "p62": {
+          "split_half_sb": 0.5861
+        },
+        "phalloidin": {
+          "split_half_sb": 0.5276
+        }
+      },
+      "marker_marker_corr": {
+        "brightfield": {
+          "brightfield": 1.0,
+          "dapi": -0.03,
+          "p21": -0.556,
+          "p62": -0.001,
+          "phalloidin": 0.025
+        },
+        "dapi": {
+          "brightfield": -0.03,
+          "dapi": 1.0,
+          "p21": 0.247,
+          "p62": 0.426,
+          "phalloidin": 0.678
+        },
+        "p21": {
+          "brightfield": -0.556,
+          "dapi": 0.247,
+          "p21": 1.0,
+          "p62": 0.133,
+          "phalloidin": 0.161
+        },
+        "p62": {
+          "brightfield": -0.001,
+          "dapi": 0.426,
+          "p21": 0.133,
+          "p62": 1.0,
+          "phalloidin": 0.551
+        },
+        "phalloidin": {
+          "brightfield": 0.025,
+          "dapi": 0.678,
+          "p21": 0.161,
+          "p62": 0.551,
+          "phalloidin": 1.0
+        }
+      }
+    },
+    "ZEL031": {
+      "n_fovs": 24023,
+      "n_compounds": 8443,
+      "markers": {
+        "brd4": {
+          "split_half_sb": 0.5205
+        },
+        "brightfield": {
+          "split_half_sb": -0.0108
+        },
+        "cona": {
+          "split_half_sb": 0.482
+        },
+        "dapi": {
+          "split_half_sb": 0.4443
+        },
+        "phalloidin": {
+          "split_half_sb": 0.4449
+        }
+      },
+      "marker_marker_corr": {
+        "brd4": {
+          "brd4": 1.0,
+          "brightfield": -0.156,
+          "cona": 0.288,
+          "dapi": 0.509,
+          "phalloidin": 0.5
+        },
+        "brightfield": {
+          "brd4": -0.156,
+          "brightfield": 1.0,
+          "cona": 0.067,
+          "dapi": -0.07,
+          "phalloidin": -0.07
+        },
+        "cona": {
+          "brd4": 0.288,
+          "brightfield": 0.067,
+          "cona": 1.0,
+          "dapi": 0.139,
+          "phalloidin": 0.16
+        },
+        "dapi": {
+          "brd4": 0.509,
+          "brightfield": -0.07,
+          "cona": 0.139,
+          "dapi": 1.0,
+          "phalloidin": 0.691
+        },
+        "phalloidin": {
+          "brd4": 0.5,
+          "brightfield": -0.07,
+          "cona": 0.16,
+          "dapi": 0.691,
+          "phalloidin": 1.0
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "registry_name": "shared_program_basis_pin",
+  "basis_version": "shared_program_basis_v1",
+  "basis_fit_scope": "training folds 1-4 only (fold = SHA256(public_compound_id) mod 5); fold 0 untouched by any fitting",
+  "pinned_files": [
+    {
+      "package_name": "shared_program_basis_v1",
+      "file": "shared_basis_k32.npy",
+      "k": 32,
+      "sha256": "af9fbac859cceefe6d291f16863755581a4f0d759aba6ff156179a96bd5f45fa"
+    },
+    {
+      "package_name": "shared_program_basis_k12_v1",
+      "file": "shared_basis_k12.npy",
+      "k": 12,
+      "sha256": "17f9ead64a4a34d3920a65cf0cca093d3762d7dfcb8cddeaca877cbdeb2b72bc"
+    }
+  ],
+  "validity_statement": "usage coordinates are valid only against the pinned basis files in this directory; any future basis refit changes program identities"
+}

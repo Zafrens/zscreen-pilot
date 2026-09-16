@@ -1,0 +1,7 @@
+{
+  "zafrens_cell_line": "AEC7",
+  "chemical_context": "zel039_aec7",
+  "external_genetic_reference_cell_line": "teloHAEC",
+  "relationship": "Closely related to AEC7, as clarified by Zafrens.",
+  "rule": "Use AEC7 for the Zafrens cell line; preserve teloHAEC in external genetic-reference names, IDs and original source provenance."
+}

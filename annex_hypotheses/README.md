@@ -1,95 +1,31 @@
-# Therapeutic-hypothesis annex
+# Chemical families and biological hypotheses
 
-This annex is the hypothesis layer of the package: prioritized leads
-with explicit null models and stated kill/confirm experiments, mined
-from the program and grammar layers of the screens. Read `HOW_TO_READ.md`
-alongside any table.
+This annex organizes response patterns into candidates for follow-up: chemical components, related recipe series, program annotations and reference-control similarities. Start with the 16 curated entries in [anchor_leads.csv](anchor_leads.csv), using the [interpretation notes](INTERPRETATION_NOTES.md) for score definitions and separate program-label namespaces.
 
-## The flagship stories
+## Three useful examples
 
-**1. A heat-shock chemotype that phenocopies HTH-01-015 at rank 1**
-(ZSH-0001). In the AEC7 context, compounds carrying bb0 level
-`BB_2085420374` (2,294 carriers) induce a canonical HSF1/heat-shock
-program, and that program reproduces the measured phenotype of the
-control HTH-01-015, the most extreme heat-shock response in the
-35-control panel (mean z = +3.94 across 9 HSP genes) and the level's
-rank-1 control match (cos 0.631). Three independent lines converge:
-the control's own measurement (r = 0.53 against the library-derived
-effect vector), neighborhood enrichment (49/50 top neighbors carry
-the level, p = 3.3e-46), and unsupervised recovery (the shared
-program basis recovers the whole triangle with no control
-supervision). The kill/confirm: raw-pseudobulk confirmation of
-HSPA1A/DNAJB1 induction in carriers, an HSF1 reporter on carrier
-compounds, and a test of whether the control's own heat-shock
-phenotype is on-target (NUAK1/ROCK) or a chemotype off-target. The
-other ROCK-family controls show no heat-shock outlier behavior,
-which already weakens the on-target reading.
+**A heat-shock family linked to a measured control — ZSH-0001.** In AEC7, 2,294 compounds carrying `bb0:BB_2085420374` support an HSF1/heat-shock pattern. The separately measured HTH-01-015 control is the reported rank-1 response match (cosine 0.631). Neighborhood, clustering and building-block effect summaries share a ridge-model basis; they are related views of the same family evidence, rather than three independent biological validations. The control's heat-shock response does not establish the library compounds' molecular targets.
 
-**2. METTL3 inhibitors phenocopy the METTL3 knockout** (ZSH-3760).
-The two METTL3-inhibitor controls (STM2457, STC-15) reproduce the
-METTL3-knockout signature at signed z = +8.8 to +16.1 in all three
-cell lines, the strongest control result in the dataset, against
-1,000 random-gene-set nulls, and among the small set of
-exact-mechanism recoveries against the external knockout atlas. The m6A-writer
-inhibition phenotype transfers from adherent-line drug treatment to
-a K562 knockout. Library-scale, METTL3-KO-mimicking compounds
-cluster in specific bb1 scaffolds (grammar-level): a testable m6A
-program with a chemistry handle.
+**A genetic-reference calibration example — ZSH-3760.** The signed-rank analysis reports positive METTL3 correspondence for STM2457 and STC-15. Its z values belong to that scoring method. Cosine/consensus and ensemble scores are separate comparisons and need their own calibration. Retain this as a reference-response hypothesis, not a validated METTL3 mechanism for unnamed library compounds. [Processed correspondence tables](../annex_phenomimicry/README.md).
 
-**3. A sharp ER-stress SAR family with a chemistry cliff**
-(ZSH-3757). The bb0 `BB_2371372935` sub-series (53 and 47 compounds)
-are the screen's sharpest chemistry-coupled SAR object:
-within-phenotype coherence 0.79, chemical coherence 0.97, and the
-50 chemically nearest non-members **anti-correlate** with the series
-phenotype (ring1 = -0.33; falloff null percentile 1.00, 1 of only
-11/111 candidates that extreme). Two independent metrics converge
-on the same family, and imaging gives an orthogonal vote (IF
-coherence p = 0.020, tier-matched). Drivers are UPR/ER-stress genes
-(IGFBP1, HSPA5, MANF, PDIA6, PTX3, DDIT3). The kill/confirm is
-spelled out: raw pseudobulks of series members vs their ring1
-chemical neighbors for HSPA5/DDIT3 induction, plus an ATF6/XBP1s
-UPR reporter on members and non-members.
+**A UPR-associated series with a local chemistry cliff — ZSH-3757.** On `bb0:BB_2371372935`, the 53-member `bb1:BB_8930974984` series has phenotype coherence 0.793 and nearest-neighbor correlation −0.328. Its deep-measurement fraction is 0.774. The other named series, 47 members with `bb1:BB_7908408907`, has coherence 0.961 but positive neighbor correlation +0.658, cliff percentile 0.18 and no deep-tier members. These are distinct observations; the latter is not a second replication of the former's cliff. [Exact series and cliff tables](../annex_chemistry/README.md).
 
-## The tables
+## Tables and keys
 
-| file | rows | what it is |
+| File | Rows | Use |
 |---|---:|---|
-| `anchor_leads.csv` | 16 | The distilled, hand-curated leads, the guided entry point. Each row states the building-block level(s), context, biological program, matched control (if any), external triangulation, the evidence with its null named, a confidence tier, caveats, and a concrete **kill/confirm experiment**. |
-| `program_atlas.csv` | 26 | The 26 program groups that organize the screens: theme and named gene-set family per group, top genes, driving BB levels, anchor controls, CRISPR-knockout links, depth-tier diagnostics, confidence tier, and a focus experiment. Program identities are tied to the pinned shared basis (see `core/basis/basis_registry.json`). |
-| `sharp_sar_candidates.csv` | 133 | Biology-ranked shortlist of sharp structure-activity objects: two-position BB sub-series, resolution-stable micro-clusters, and single-level R-groups, ranked by within-phenotype coherence against tier-matched nulls plus chemistry-ring falloff (do the chemically nearest non-members lose the phenotype?). zel024 rows are marked `grammar_level` (bb-backbone discovery only). The full SAR tables, organized for chemists, are in the chemistry annex. This file is the cross-reference shortlist, not a duplicate. |
-| `hypothesis_ledger_full.csv` | 1,027 | The complete, unfiltered mining ledger. **Triage-grade, hypothesis-generating**. The filename, the `status` column (`hypothesis_anchor_validated` / `hypothesis_strong` / `hypothesis_triage`), and `confidence_tier` make that unambiguous. It is included for completeness and for collaborators who want to re-rank with their own priors. |
+| [anchor_leads.csv](anchor_leads.csv) | 16 | Curated entry points, public components, evidence summaries and proposed confirming experiments; join the current reading notes by `hypothesis_id`. |
+| [program_atlas.csv](program_atlas.csv) | 26 | Response groups, gene themes, driving components, control/reference links and measurement-support diagnostics. Use `program_group_id`; its atlas P labels are not current basis row indices. |
+| [sharp_sar_candidates.csv](sharp_sar_candidates.csv) | 133 | Shortlist of two-component series, small clusters and single-component groups. |
+| [hypothesis_ledger_full.csv](hypothesis_ledger_full.csv) | 1,027 | Response-family hypotheses with stable IDs, evidence, control similarities and prioritization fields. Tier and status labels are not evidence of molecular target validation. |
+| [interpretation_notes.json](interpretation_notes.json) | 3 | Interpretation of ZSH-0001, ZSH-3757 and ZSH-3760, keyed by stable hypothesis ID. |
+| [program_label_namespaces.json](program_label_namespaces.json) | 26 groups | Explicit namespace for atlas program labels; no inferred mapping to the current shared basis. |
 
-## How the tiers work
+[Interpretation and label notes](INTERPRETATION_NOTES.md) explain the
+score definitions and program namespaces. AEC7/ZEL039 measurements support
+response-family interpretation; HEK293/ZEL024 SAR surfaces are largely
+recipe-backbone estimates, so their series statistics describe that
+representation. [Control annotations](../annotations/README.md) provide
+primary-source pharmacology for interpreting control similarities.
 
-- **A: anchor-validated pattern class.** Multiple independent data
-  lines converge (measured control signature + bb-effect alignment +
-  unsupervised recovery), all stated nulls addressed. Two patterns
-  reach this tier: the HSF1 heat-shock chemotype and the
-  palbociclib/translation match. The METTL3 phenocopy lead is
-  tier A on external-validation strength.
-- **B: strong pooled signal, nulls addressed, but limited
-  independence or single-context support.** Level→control rank-1
-  matches and the recurring grammar programs live here.
-- **C: triage.** Everything else, plus the recorded nulls, which
-  are kept because a well-characterized null is as useful as a
-  positive. External CRISPR-knockout concordance is a separate annex
-  (`../annex_phenomimicry/`) with its own calibrated tiers.
-
-Caveat flags use a controlled vocabulary: `weak_null` (match
-p-value is permissive; specificity is in the rank/identity),
-`singleton` (pooled, level-level reads only), `triage_grade`
-(grammar-level or non-discriminatory null), `low_coverage`
-(external panel cannot test this mechanism).
-
-## How to read the full ledger
-
-`hypothesis_ledger_full.csv` keeps one row per mined claim: a claim
-sentence, the evidence numbers with the null type named, caveats,
-the matched control and MOA class where applicable, and a rank
-score. Filter by `status`/`confidence_tier` first; the
-`hypothesis_triage` rows (95.2% of the table) are raw material.
-Hypothesis IDs (ZSH-####) are stable across package versions:
-anchor leads that distill a ledger row carry that row's ID, and
-the six narrative-only leads (ZSH-3755-ZSH-3760) continue the same
-sequence. A complete ledger will contain false positives even with
-correct nulls; that is why the distilled tables exist.
+[How to read the evidence](HOW_TO_READ.md) · [Methods and input access](../docs/ANALYSIS_ACCESS.md) · [External reference sources](../docs/REFERENCE_SOURCES.md).

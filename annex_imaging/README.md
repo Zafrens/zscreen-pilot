@@ -1,8 +1,16 @@
 # Imaging Annex
 
 Microscopy-derived features for the compound libraries in this package, plus
-fold-clean test predictions that connect imaging to the shared 32-program
+held-out-compound predictions that connect imaging to the shared 32-program
 coordinates in `core/`.
+
+For measured five-channel image crops linked to public recipes
+and core RNA profiles, start with the [real microscopy gallery](../gallery/README.md).
+It includes selected channel arrays and a deterministic
+selection rule with surrounding family and crop distributions. The gallery
+image metadata has no cell-line field: its link to `zel024_hek293`
+is by compound and library, not evidence that the image cells are HEK293
+or that those images and RNA were measured in the same well.
 
 **Terms used throughout.** A *field of view* (FOV) is one microscope image of
 one well region. A *program* is one of 32 coordinated gene-expression patterns
@@ -34,12 +42,12 @@ during training.
 |---|---|---|
 | `zel039_imaging_latents.parquet` | 78,896 detections × 457 cols | Per-detection 448-dimensional image latents (`D0`-`D447`) for the zel039 library, with `public_compound_id` (empty for the 6,081 detections not mapped to a compound; see `mapped_to_compound_master`), the three public building-block IDs (`public_bb0_id`-`public_bb2_id`), library/cell-line context, and scan type (`scantype`: cell painting or immunofluorescent staining; `if_target` names the immunofluorescence target where applicable). 15,003 distinct compounds are covered. |
 
-### Reliability audits (`reliability/`)
+### Reliability estimates (`reliability/`)
 
 | File | Contents |
 |---|---|
-| `embedding_reliability_audit.json` | Split-half reliability of the per-compound embeddings: FOVs of each compound are split in two, the two half-averages are correlated across compounds, and the correlation is Spearman-Brown corrected to full-data reliability. Median centered split-half reliability is 0.40-0.43 across both libraries and both embedding backbones (50 random splits, ~1,900-2,460 deeply sampled compounds audited per library). |
-| `marker_reliability_audit.json` | Same audit for marker intensities: 0.43-0.59 for true marker channels (p62 0.59, phalloidin 0.53, BRD4 0.52, ConA 0.48, DAPI 0.44-0.47, p21 0.43), plus the marker-marker correlation matrix. Brightfield is near zero in zel031, as expected for a non-marker channel in those panels. |
+| [embedding_reliability.json](reliability/embedding_reliability.json) | Split-half reliability of the per-compound embeddings: FOVs of each compound are split in two, the two half-averages are correlated across compounds, and the correlation is Spearman-Brown corrected to full-data reliability. Median centered split-half reliability is 0.40-0.43 across both libraries and both embedding backbones (50 random splits, ~1,900-2,460 deeply sampled compounds evaluated per library). |
+| [marker_reliability.json](reliability/marker_reliability.json) | Split-half estimates for marker intensities: 0.43-0.59 for true marker channels (p62 0.59, phalloidin 0.53, BRD4 0.52, ConA 0.48, DAPI 0.44-0.47, p21 0.43), plus the marker-marker correlation matrix. Brightfield is near zero in zel031, as expected for a non-marker channel in those panels. |
 
 ### Fold-clean prediction dumps
 
@@ -88,35 +96,34 @@ is: compound embeddings (this annex) → `public_compound_id` → usages (`core/
 
 ## Headline findings
 
-**1. Image embeddings predict the 32 program usages; the program layer
-is the representation in which the images become usable.** Predicting
-program usages from image embeddings reaches a mean per-program Pearson
-r of 0.135 in zel024_hek293 (CLIP + ridge, clean folds 1-4 of the
-per-compound dumps; every fold × seed cell of the panel evaluation sits
-above its pairing null, i.e. the correlation obtained after shuffling
-the compound↔image pairing) and 0.1345 in zel039_aec7 (best model
-variant, mean over 5 folds × 3 seeds; all 60 fold × seed × variant
-cells above their nulls; the dumps reproduce 0.103-0.127 clean-fold
-means on the scantype-matched compound universe). Predicting the gene
-surface directly from images, without the program layer, reaches only
-0.014-0.032 decoded mcPearson in the two deep contexts (6-14% of the
-~0.24 oracle ceiling), while decoding through the 32-program bottleneck
-improves on direct prediction by ~50-65%. Haghighi et al. (*Nat.
-Methods*, 2022) found 58 of 978 L1000 landmarks highly predictable from
-Cell Painting across datasets; the gene-level image map here sits in
-that difficult regime. Signal requires the matched cell line:
-zel031_thp1 is weakly real (~0.019) and zel031_a549 is a documented
-null (≤ 0.012). Evidence: `prediction_score_summary.csv`,
-`decision_grade_image_to_program_panels.csv`,
-`decision_grade_image_to_program_zel039_aec7.csv`,
-`decode_through_comparison.csv`.
+**1. Image features predict part of the program response.** In
+[prediction_score_summary.csv](prediction_score_summary.csv), the mean of
+all five saved `clip_ridge` folds in `zel024_hek293` is **0.1360** per-program
+Pearson r. In `zel039_aec7`, `mean448_mlp` averages **0.1342** across five
+folds × three seeds. These are compound-level image-to-program evaluations.
 
-**2. Imaging is ~96% redundant with chemistry in program space, with a
-small, real image-only component on stress/proteostasis programs.** The
+The separate panel and variant evaluations report their own matched-pairing
+nulls and test-compound sets in
+[decision_grade_image_to_program_panels.csv](decision_grade_image_to_program_panels.csv)
+and [decision_grade_image_to_program_zel039_aec7.csv](decision_grade_image_to_program_zel039_aec7.csv).
+Use their stated units and model selections when comparing absolute scores.
+
+The [decode-through comparison](decode_through_comparison.csv) compares
+direct image-to-gene prediction, prediction through the 32-program layer,
+and the usage-space oracle ceiling. Gene-level prediction is substantially
+harder than predicting shared program coordinates. Related cross-modality
+evaluations are described by [Haghighi et al., Nature Methods, 2022](https://doi.org/10.1038/s41592-022-01667-0);
+their assays and prediction targets differ from this pilot.
+
+Performance depends on context: the saved `clip_ridge` means are 0.0187
+in `zel031_thp1` and 0.0079 in `zel031_a549`. Retain these weaker results
+when assessing the transferability of image-to-RNA prediction.
+
+**2. Chemistry and imaging share much of their program-level predictive signal.** The
 per-program variance decomposition shows chemistry alone explains most
 predictable usage variance (mean chemistry-only R² 0.30 in zel024_hek293,
-0.09 in zel039_aec7), while the image-only sliver is small but significant
-exactly where biology would put it: the proteostasis/stress programs (top
+0.09 in zel039_aec7), with smaller image-only increments
+in the proteostasis/stress programs (top
 image-only increments in zel024_hek293: P21 +0.0038, P16 +0.0032, P15
 +0.0025, all z > 4 against permutation nulls). In zel039_aec7, imaging is
 almost fully shared with chemistry. Evidence: `decomposition.csv`.
@@ -134,16 +141,14 @@ morphology/marker level rather than the program-usage level.
 Evidence: `marker_program_association.csv`,
 `marker_program_depth_stratified.csv`.
 
-## Usage guidance: markers are targets, never features (circularity note)
+## Marker channels and independent prediction targets
 
-The pixels used to compute the embeddings and latents **include the marker
-channels**. Any model that takes embeddings as input features and predicts
-marker intensities can therefore succeed by reading the marker pixels
-directly: a circular measurement, not biology. The safe direction is the
-one used throughout this package: **marker values may only ever be
-prediction targets, never input features.** Predicting RNA program usages
-from embeddings is not circular (the RNA measurement shares no pixels with
-the images).
+Image embeddings include marker-channel pixels. Predicting a marker
+intensity from those images can recover the marker signal already present
+in the input; it does not demonstrate an independent biological link.
+The RNA measurements provide a separate target for image-to-program
+prediction. Keep marker-recovery results distinct from prediction of RNA,
+and use the stated compound or well linkage for each comparison.
 
 ## Panel note: zel024 and zel031 are different panels
 
@@ -153,13 +158,20 @@ Cross-library pooling of marker intensities or embeddings needs panel-aware
 normalization (e.g. z-scoring within panel before pooling); do not treat the
 two marker tables as one homogeneous matrix.
 
-## Provenance notes
+## Measurement and split definitions
 
-- Per-FOV embeddings were aggregated to compound level before shipping;
-  per-FOV and per-crop raw tables are **available on request**, not in this
-  package.
-- The zel039 latents table is at detection grain; raw image filename,
-  detection ID, and device name were removed before release.
-- All prediction dumps are fold-clean: fold assignment is
-  SHA256(`public_compound_id`) mod 5, identical to `core/splits/`.
-- Two smoke-test prediction files (tiny sanity-check runs) were excluded.
+- Per-FOV embeddings are averaged to the compound level. The
+  [gallery](../gallery/README.md) supplies image metadata, per-crop marker
+  means and two selected channel arrays. Other raw image panels and
+  per-FOV embeddings require [additional input access](../docs/ANALYSIS_ACCESS.md).
+- The zel039 latents table has one row per detection. Use
+  `mapped_to_compound_master` to distinguish detections with public
+  compound assignments.
+- Prediction folds use SHA256(`public_compound_id`) mod 5, matching
+  [core/splits](../core/splits/fold_assignments.parquet).
+- The embedding reliability table uses at least four FOVs per evaluated
+  compound and 50 random splits. `n_compounds_evaluated` records the
+  subset used for each backbone’s estimates, distinct from the total
+  `n_compounds` in that library.
+
+[Completed measurement-design comparisons](../annex_measurement_design/README.md) · [Methods and input access](../docs/ANALYSIS_ACCESS.md).

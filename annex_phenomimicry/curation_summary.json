@@ -1,0 +1,16 @@
+{
+  "active_control_target_pairs": 54,
+  "active_controls": 34,
+  "active_targets": 43,
+  "active_context_dataset_queries": 2074,
+  "p005_queries": 100,
+  "p001_queries": 14,
+  "pairs_at_least_one_p005": 26,
+  "pairs_at_least_two_p005": 14,
+  "ensemble_pairs": 42,
+  "ensemble_median_best_percentile": 0.01864277136932695,
+  "cosine_median_best_percentile": 0.0526796143629183,
+  "ensemble_best_top5_pairs": 29,
+  "cosine_best_top5_pairs": 21,
+  "ensemble_consistent_pairs": 10
+}

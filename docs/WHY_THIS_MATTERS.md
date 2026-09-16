@@ -1,191 +1,45 @@
-# Why the design is worth scaling
+# Why this pilot matters
 
-This package is the shared program layer of a Z-Screen pilot: 190,699
-compound-cell-line transcriptomes, from 162,914 combinatorial recipes, in
-eight library × cell-line contexts. Relative to the chemical space the
-same libraries can generate, the screens are a pilot. Their value is the
-factorization they establish (reusable building-block chemistry, and a
-32-program transcriptional readout defined once and used in every context)
-because both make the next measurement more informative than the last.
+## A chemical library is also an experimental design
 
-The four libraries carry the public names `zel024`, `zel028`, `zel031`,
-and `zel039`. A context is one library paired with one cell line
-(HEK293, H1650, A549, THP1, or AEC7). Building blocks and compounds are
-identified only by public opaque IDs (`BB_##########`, `CPD_############`);
-structures are not in this folder.
+A combinatorial library reuses chemical components in many combinations. That repetition lets researchers hold a component fixed, vary its partners and compare the resulting cellular responses.
 
-## Combinatorial chemistry as a measurement grammar
+Z-Screen connects public recipes to high-dimensional RNA measurements, with imaging and controls in the available contexts. The pilot contains 162,914 recipes and 190,699 compound-context profiles. Its shared 6,000-gene and 32-program representations provide a consistent starting point for exploring chemical effects and training predictive models. [Data overview](SCIENTIFIC_OVERVIEW.md).
 
-A Z-Screen compound is a recipe: which building block occupies which
-assembly position. Because a block recurs across thousands of recipes, its
-effect can be estimated by pooling, and a model trained on measured recipes
-can assign coordinates to recipes that have not been synthesized.
+## Recurring components make response families inspectable
 
-The largest library, `zel028`, is a grid of 87 × 88 × 88 recipes
-(673,728 members; the fourth occupied slot is a singleton and does not
-expand the product). This package contains 117,950 of those recipes
-(17.5% of the grid) in up to three cell lines. Completing the same grid
-in those three lines is 2,021,184 transcriptomes. Across all four
-libraries, the design grids multiplied by the cell lines already screened
-comprise 2,095,149 compound-context states, of which 190,699 are
-measured, an eleven-fold expansion relative to the physical data
-(`core/recipes.parquet`, `core/splits/fold_assignments.parquet`).
+The original atlas contains 1,007 chemistry-constrained response families. V2 supplies explicit members and centroids alongside the existing pathway census, so a reader can move from a group-level claim to its constituent compounds and measured profiles. [Original atlas](../atlas/original_clusters/README.md).
 
-Adding one unused building block at the 87-member position of the
-`zel028` grid produces 7,744 new recipes (the 88 × 88 partners at the
-other two variable positions), or 23,232 predicted transcriptomes in the
-three cell lines the reference model already treats. Where a well in a
-conventional screen purchases one answer, and a DNA-encoded library
-purchases binders to an isolated protein, the incremental object here
-is a building block whose partners have already been observed.
+One compact example is the AEC7 family containing building block `BB_2371372935`: 1,512 compounds and 5,373 retained cells yield aggregate profiles that correlate at 0.981 between disjoint member-compound halves. The halves share the source experiment collection. The HSPA5-associated RNA pattern supplies a biological reference for further study; it does not establish HSPA5 binding or inhibition. [Family example](../annex_case_studies/01_hspa5_building_block/README.md).
 
-## A shared 32-program coordinate system
+Partner-defined groups show different aggregate reference preferences, motivating balanced chemical comparisons. The more restrictive common-stratum sensitivity is inconclusive, so a causal partner-dependent mechanism switch has not been established. [Partner example](../annex_case_studies/02_partner_responses/README.md).
 
-Each measured profile is a 6,000-gene vector. The same profiles,
-projected onto a shared semi-NMF basis, become 32 program-usage
-coordinates (`core/usages/`, `core/basis/`). Cross-context structure is
-ten- to twenty-fold stronger in that space than gene by gene
-(`core/benchmark/program_signal_concentration.csv`). Building-block
-effects, pooled over the compounds that carry a given block, have
-split-half reliability of about 0.50-0.58; a single compound at the
-present sequencing depth does not. The combinatorial design is built for
-the former reading.
+## The same measurements support model development
 
-A 473,120-parameter transformer predicts the 32 usages from a public
-recipe and a context token. On compounds held out of both basis fitting
-and training, mean per-program Pearson correlation ranges from 0.105 to
-0.530 across the eight training contexts (z = 6.1-28.1 against a
-permutation null), and is 0.530 (z = 28.1) in the deepest context,
-`zel024_hek293` (`core/benchmark/program_space_primary.csv`). The same
-architecture, given chemical structure rather than building-block
-identity, generalizes to blocks withheld before synthesis, at
-r = 0.339 ± 0.020 in that context, against an additive embedding floor of
-0.182 (`annex_chemistry/novel_bb_generalization.csv`). Removing a block
-from the structure model recovers that block's measured effect at median
-Spearman 0.89-0.94 (`annex_chemistry/attribution_certificate.csv`).
+The reference model predicts a response's 32 program coordinates from its public recipe and context. Checkpoints, embedding inputs, fixed folds and inference code make this an immediate worked example. Researchers can compare other recipe representations or ask where predictions transfer across contexts. [Model guide](../models/README.md) · [Benchmark](../core/benchmark/README.md).
 
-Published L1000 models report Pearson correlations of 0.6-0.8 on 978
-landmark genes, and those scores reconstruct basal cell state: on a
-unified split, Bai, Prince and Nitschke (bioRxiv, 2026) found that
-removing the drug encoder changes them by at most 0.012. The
-prediction target in this package is the treatment effect, not the
-cell-line identity, and its benchmark lives in the 32-program layer:
-0.105-0.530 mean per-program Pearson across the eight training
-contexts (z = 6.1-28.1 against a permutation null;
-`core/benchmark/program_space_primary.csv`).
+Retrospective selection curves illustrate a related use: selecting compounds according to a fixed RNA-response objective and updating the model after observations arrive. This is a retrospective example of learning from feedback. [Learning example](../annex_case_studies/03_adaptive_replay/README.md) · [Methods and access](ANALYSIS_ACCESS.md).
 
-## Recovered mechanisms, and leads that can be tested
+## Quantitative results and comparable resources
 
-The same 32-program layer recovers mechanisms that were not supplied as
-labels. The METTL3 inhibitors STM2457 and STC-15 reproduce the METTL3
-knockout signature in every line tested (signed z = +8.8 to +16.1;
-`annex_hypotheses/anchor_leads.csv`, ZSH-3760). Building block
-`BB_2085420374`, carried by 2,294 compounds, matches the measured
-heat-shock control HTH-01-015 at rank 1 (r = 0.53 against the control's
-own profile; 49 of the 50 nearest neighbors carry the block). An
-ER-stress sub-series is coherent at 0.79 while its 50 nearest chemical
-neighbors anti-correlate (-0.33). The hypothesis annex includes sixteen
-distilled leads, each with a specified kill/confirm experiment; the
-mining ledger behind them has 1,027 rows and is labeled as triage
-material.
+Held-out recipe predictions reach mean per-program Pearson **0.105–0.530** across eight contexts (**z = 6.1–28.1** under the recorded permutation null). The separate fold-0 comparison finds simple recipe models and the reference transformer each ahead in four contexts. Held-out-building-block and imaging evaluations add complementary evidence. [Exact selectors, results, and source tables](PILOT_RESULTS_REFERENCE.md).
 
-The biology also recovers without any labels. An unsupervised census
-of the 32-program usage space finds 1,007 analog-family clusters
-across the eight contexts (3-137 members, median 4), each a fixed
-core at one recipe position with varied substituents at another
-(`annex_clusters/cluster_census.csv`). Every cluster is coherent at
-q <= 0.01 against 200 size-matched
-random compound sets (median coherence z = 4.8), and 855 of the
-1,007 carry at least one significant Hallmark/KEGG/Reactome pathway
-on their gene centroids (q < 0.05). A bonsai tree built on the
-32-dimensional cluster centroids preserves pairwise distances at
-median Pearson R 0.87, against 0.66 for UMAP, so the tree is a
-faithful map of the recovered families.
+The nominal `zel028` recipe grid contains **673,728 combinations**, of which **117,950** are observed somewhere in the three measured contexts. The [design arithmetic](PILOT_RESULTS_REFERENCE.md#combinatorial-design-arithmetic) distinguishes library-wide vocabulary from context-specific coverage and from synthesis feasibility. A [primary-source resource comparison](PILOT_RESULTS_REFERENCE.md#relation-to-complementary-public-resources) places the pilot alongside LINCS, PRISM, Tahoe-100M and JUMP Cell Painting by measurement purpose.
 
-## Imaging in the same coordinates
+## What scaling could answer
 
-Image embeddings predict the 32 program usages at mean per-program
-r = 0.135 in `zel024_hek293` and 0.1345 in `zel039_aec7`, with every
-evaluated fold above a pairing null. Direct image-to-gene prediction in
-the same contexts reaches 0.014-0.032, six to fourteen percent of a
-~0.24 oracle ceiling; routing through the 32 programs improves that
-gene-level prediction by about 50-65% (`annex_imaging/`). Haghighi et al.
-(*Nat. Methods*, 2022) found 58 of 978 L1000 landmarks highly
-predictable from Cell Painting across datasets. The gene-level image map
-here sits in that difficult regime. The program layer is the
-representation in which the images become usable.
+| Expand… | To investigate… |
+|---|---|
+| Chemical combinations | How recurring component effects depend on their partners |
+| Measurements per combination | Which weak or variable responses stabilize with additional support |
+| Cellular settings | Which responses transfer and which depend on context |
+| Paired images and RNA | How molecular responses relate to cellular form and heterogeneity |
+| Prospective learning rounds | Whether selection improves when new measurements inform the next experiments |
 
-A separate same-well study pairs 448-dimensional image latents with
-32-dimensional RNA latents in 11,435 wells of 35 named controls
-(`annex_same_well/`). Image-to-RNA ridge regression reaches mean
-per-dimension Pearson 0.277. The same statistic at 35 wells, one paired
-point per control, the grain at which image and RNA are usually joined by
-compound identity across plates (Way et al., *Cell Syst.*, 2022), falls
-below the null band. The learning curve crosses the null near 300 wells
-(`annex_same_well/evidence/learning_curve.png`). JUMP-CP photographed on
-the order of 117,000 compounds without a transcriptome; Recursion's
-public RxRx3 release contains 1,674 compounds and keeps imaging and RNA
-in separate maps. Combinatorial chemistry with both modalities taken
-from the same well is not, as of this writing, a public product.
+The [design-space figure](../figures/measured_and_nominal_design_space.png) distinguishes observed coverage from nominal combinations of available blocks. The [measurement-design annex](../annex_measurement_design/README.md) provides existing pairing and batch-accumulation results, with their sampling units and modest absolute prediction fit stated. These pilot results motivate experiments; they do not establish universal scaling laws.
 
-## Relation to existing atlases
+## Build on the data
 
-The relevant comparison is the measurement job, not the cell count.
+Use the core resource to develop a model, explore a family, join an imaging measurement, or formulate a biological follow-up. Public IDs and explicit matrix axes keep those analyses tied to the same objects. [Start Here](../START_HERE.md) · [Annex index](ANNEX_INDEX.md).
 
-| Job | Representative public resource | This pilot |
-|---|---|---|
-| Lookup of known drugs across many lines | LINCS L1000 (~20,000 compounds, 978 landmarks; Subramanian et al., *Cell*, 2017); PRISM (Corsello et al., 2020) | 35 named controls in eight contexts |
-| Single-cell depth for virtual-cell training | Tahoe-100M (~100 million cells, a few hundred unique compounds after quality control; Zhang et al., 2025) | 190,699 profiles; not a single-cell atlas |
-| Morphology at compound scale | JUMP-CP (~117,000 compounds, images only; Chandrasekaran / Weisbart et al., 2023-24); Recursion RxRx3 (1,674 compounds; Fay et al., 2023) | Imaging is an annex, informative when paired in the same well |
-| Binding at very large chemical scale | DNA-encoded libraries | A different quantity: no live cell |
-| Recipe → transcriptional program | None | 162,914 recipes, 6,000 genes, 32 shared programs |
-
-Tahoe is the depth champion. This package contains two orders of
-magnitude more distinct chemical entities than the Tahoe compound set
-after quality control. JUMP is comparable in compound count and reports
-no genes. DNA-encoded libraries are larger in molecules and silent in
-cells. Almost all published chemistry-to-transcriptome models take a
-finished molecule or a gene identifier as input; a public system that
-tokenizes a multi-block synthetic recipe, trains across several
-library × cell contexts, and emits a program-scale RNA profile is not
-in the 2024-2026 literature we surveyed.
-
-## Intended use
-
-Fold 0 of the SHA256-mod-5 compound split was held out of basis fitting
-and of reference-model training; it is the intended test set. This is a
-screening-data release with a held-out fold provided for validation,
-not a benchmark with a leaderboard. The
-32-program usages, the recipes, and the checkpoints are the objects a
-model-builder needs. The hypothesis and chemistry annexes are the
-objects a discovery group needs. Chemical structures are omitted; the
-building-block-to-structure map is available under NDA.
-
-The measurements that most increase the value of what is already here
-are additional building blocks, additional wells on compounds that are
-presently singletons, and same-well imaging on the 673,728-recipe grid.
-
-## References
-
-- Bai, D., Prince, E. W. & Nitschke, R. Unified evaluation of
-  L1000 perturbation-response models. *bioRxiv* (15 May 2026).
-- Chandrasekaran, S. N. et al. JUMP Cell Painting dataset.
-  Preprint / *Nat. Methods* companion (2023-24); Weisbart, E. et al.,
-  *Nat. Methods* (2024).
-- Corsello, S. M. et al. Discovering the anticancer potential of
-  non-oncology drugs by systematic viability profiling. *Nat. Cancer*
-  (2020).
-- Fay, M. M. et al. RxRx3: phenomics resource of images for 17,063
-  gene knockouts and 1,674 compounds. Recursion (2023).
-- Haghighi, M., Caicedo, J. C., Cimini, B. A., Carpenter, A. E. &
-  Singh, S. High-dimensional gene expression and morphology profiles
-  of cells across 28,000 genetic and chemical perturbations.
-  *Nat. Methods* **19**, 1550-1557 (2022).
-- Subramanian, A. et al. A next generation connectivity map: L1000
-  platform and the first 1,000,000 profiles. *Cell* **171**,
-  1437-1452 (2017).
-- Way, G. P. et al. Morphology and gene expression profiling provide
-  complementary information for mapping cell state. *Cell Syst.*
-  **13**, 911-923 (2022).
-- Zhang, J. et al. Tahoe-100M: a giga-scale single-cell perturbation
-  atlas. Parse Biosciences / associated preprint (2025).
+For a new library, deeper measurements, structure-level chemistry or related analysis inputs, contact [hello@zafrens.com](mailto:hello@zafrens.com).
